@@ -31,8 +31,9 @@ public class PathBuilder {
         }
     }
 
-    public Label buildPathLane(VehicleLane vehicleLane, Double[] dualValues){
+    public Label buildPathLane(VehicleLane vehicleLane, Double[] dualValues) {
         Label L = new Label();
+        return L;
     }
 
 
