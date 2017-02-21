@@ -36,5 +36,10 @@ public class PathBuilder {
         return L;
     }
 
+    public Label buildPathSidewalk(VehicleLane vehicleLane, Double[] dualValues){
+        Label L = new Label();
+        return L;
+    }
+
 
 }
