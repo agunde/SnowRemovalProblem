@@ -33,6 +33,30 @@ public class PathBuilder {
 
     public Label buildPathLane(VehicleLane vehicleLane, Double[] dualValues) {
         Label L = new Label();
+        L.node = 1;
+        L.vehicle = vehicleLane;
+        L.arraivingTime = 0;
+        L.cost = -dualValues[1];
+        L.lastTimePlowedNode = new int[nodes.size()][nodes.size()];
+        Arrays.fill(L.lastTimePlowedNode, 0);
+        L.numberOfTimesPlowed = new int[nodes.size()][nodes.size()];
+        Arrays.fill(L.numberOfTimesPlowed, 0);
+
+        ArrayList<Label> unprocessed = new ArrayList<>();
+        ArrayList<Label> processed = new ArrayList<>();
+        unprocessed.add(L);
+
+        while(!unprocessed.isEmpty()){
+            Label label = unprocessed.remove(0);
+            for(int i = 0; i < nodes.size(); i++){
+                if(inputdata.distanceLane[label.node][i] != -1){
+                    Label newLabel = ExtendLabel(i, label);
+                    if(newLabel != null) {
+                        if(checkDominance(newLabel, unprocessed,processed)){
+                    }
+                }
+            }
+        }
         return L;
     }
 
