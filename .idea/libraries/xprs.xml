@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="xprs">
+    <CLASSES>
+      <root url="jar://C:/xpressmp/lib/xprs.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
