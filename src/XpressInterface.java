@@ -3,10 +3,7 @@
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import com.dashoptimization.XOctrl;
 import com.dashoptimization.XPRB;
@@ -14,8 +11,6 @@ import com.dashoptimization.XPRBctr;
 import com.dashoptimization.XPRBexpr;
 import com.dashoptimization.XPRBprob;
 import com.dashoptimization.XPRBvar;
-import com.dashoptimization.XPRS;
-import com.dashoptimization.XPRSprob;
 
 
 public class XpressInterface {
@@ -48,12 +43,12 @@ public class XpressInterface {
 
     public ArrayList<VehicleLane>  vehicleLane;
     public ArrayList<VehicleSidewalk> vehicleSidewalk;
-    public ArrayList<Nodes> nodes;
+    public ArrayList<Node> nodes;
     public InstanceData inputdata;
     public PathBuilder builder;
     private Filewriter filewriter;
 
-    public XpressInterface(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, ArrayList<Nodes> nodes, InstanceData inputdata) {
+    public XpressInterface(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, ArrayList<Node> nodes, InstanceData inputdata) {
         this.vehicleLane = vehicleLane;
         this.vehicleSidewalk = vehicleSidewalk;
         this.nodes = nodes;
