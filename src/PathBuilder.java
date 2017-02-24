@@ -225,7 +225,7 @@ public class PathBuilder {
     private boolean dominateLabelLane(Label L1, Label L2){
         if(L1.node == L2.node && L1.arraivingTime <= L2.arraivingTime){
             //sjekk kostnad
-            return true
+            return true;
         }
         else{
             return false;
