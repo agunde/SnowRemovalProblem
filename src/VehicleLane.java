@@ -4,4 +4,7 @@
 public class VehicleLane implements Vehicle {
     public int number;
 
+    public int getNumber() {
+        return number;
+    }
 }

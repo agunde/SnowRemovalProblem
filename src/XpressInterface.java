@@ -199,14 +199,14 @@ public class XpressInterface {
             for(VehicleLane v: vehicleLane) {
                 Label labelLane = builder.buildPathLane(v, solution.get(v));
                 if(labelLane != null){
-                    addLabelToMaster(labelLane);
+                    addLabelToMaster(labelLane, true);
                     tempBoolean = true;
                 }
             }
             for(int v = 0; v < vehicleSidewalk.size(); v++) {
                 Label labelSidewalk = builder.buildPathSidewalk(v, solution.get(vehicleLane.size() + v));
                 if(labelSidewalk != null){
-                    addLabelToMaster(labelSidewalk);
+                    addLabelToMaster(labelSidewalk, false);
                     tempBoolean = true;
                 }
             }
@@ -228,8 +228,17 @@ public class XpressInterface {
         return solution;
     }
 
-    private void addLabelToMaster(Label label){
-        
+    private void addLabelToMaster(Label label, boolean LaneVehicle){
+        XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.BV,0,XPRB.INFINITY);
+
+        if(LaneVehicle == true){
+            routeVariables.get(label.vehicle.getNumber()).add(lambdaVar);
+        }
+        else if(LaneVehicle == false){
+            routeVariables.get(vehicleLane.size()+label.vehicle.getNumber()).add(lambdaVar);
+        }
+        pathList.put(routeVariables.size()-1, label);
+
     }
 
 }
