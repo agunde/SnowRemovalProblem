@@ -2,11 +2,11 @@
  * Created by andershg on 13.02.2017.
  */
 public class InstanceData {
-    public int[][] distanceLane;
+    public int[][] plowingtimeLane;
     public int[][] deadheadingtimeLane;
     public int[][] numberOfPlowJobsLane;
     public int[][] timeWindowLane;
-    public int[][] distanceSidewalk;
+    public int[][] plowingtimeSidewalk;
     public int[][] deadheadingtimeSidewalk;
     public int[][] numberOfPlowJobsSidewalk;
     public int[][] numberOfLanesOnArc;

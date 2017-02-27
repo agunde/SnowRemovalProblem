@@ -36,6 +36,7 @@ public class XpressInterface {
     private XPRBctr[][][] precedenceSidewalkCons;
     private XPRBctr[] makespanLaneCons;
     private XPRBctr[] makespanSidewalkCons;
+    private XPRBctr[] maxWaitTimeCons;
 
     //Objective
     private XPRBexpr objective;
@@ -118,15 +119,15 @@ public class XpressInterface {
 
         for(int i = 0; i < nodes.size(); i++){
             for(int j = 0; j < nodes.size(); j++) {
-                if(inputdata.distanceLane[i][j] > 0){
+                if(inputdata.plowingtimeLane[i][j] > 0){
                     this.allLanesPlowedCons[i][j] = problem.newCtr("Plowing demand lanes con");
                     this.allLanesPlowedCons[i][j].setType(XPRB.G);
                     this.allLanesPlowedCons[i][j].add(inputdata.numberOfLanesOnArc[i][j]);
                 }
-                if(inputdata.distanceSidewalk[i][j] > 0){
+                if(inputdata.plowingtimeSidewalk[i][j] > 0){
                     this.allSidewalksPlowedCons[i][j] = problem.newCtr("Plowing demand sidewalks con");
                     this.allSidewalksPlowedCons[i][j].setType(XPRB.G);
-                    this.allLanesPlowedCons[i][j].add(inputdata.numberofSidewalksOnArc[i][j]);
+                    this.allSidewalksPlowedCons[i][j].add(inputdata.numberofSidewalksOnArc[i][j]);
                 }
             }
         }
@@ -154,16 +155,19 @@ public class XpressInterface {
             this.makespanSidewalkCons[k].addTerm(this.waitVariable[k],-1);
 
             this.maxWaitTimeCons[k] = problem.newCtr("Max wait time cons");
-            //fortsett med denne restriksjonen, og legg til variabler
+            this.maxWaitTimeCons[k].setType(XPRB.L);
+            this.maxWaitTimeCons[k].add(inputdata.maxTime);
+            this.maxWaitTimeCons[k].addTerm(this.waitVariable[k], 1);
         }
 
         for(int k = 0; k < vehicleLane.size(); k++){
             for(int i = 0; i <nodes.size(); i++){
                 for(int j = 0; j < nodes.size(); j++){
-                    if(inputdata.distanceLane[i][j] > 0 && inputdata.distanceSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         this.precedenceLaneCons[k][i][j] = problem.newCtr("Precedence lane con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceLaneCons[k][i][j].add(0);
+                        this.precedenceLaneCons[k][i][j].addTerm(this.precedenceVariable[i][j],-1);
                     }
                 }
             }
@@ -172,10 +176,12 @@ public class XpressInterface {
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             for(int i = 0; i < nodes.size(); i++){
                 for(int j = 0; j < nodes.size(); j++){
-                    if(inputdata.distanceLane[i][j] > 0 && inputdata.distanceSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         this.precedenceSidewalkCons[k][i][j] = problem.newCtr("Precedence sidewalk con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceSidewalkCons[k][i][j].add(0);
+                        this.precedenceSidewalkCons[k][i][j].addTerm(this.precedenceVariable[i][j],1);
+                        this.precedenceSidewalkCons[k][i][j].addTerm(this.waitVariable[k],1);
                     }
                 }
             }
@@ -208,6 +214,22 @@ public class XpressInterface {
                 optimalSolutionFound = true;
             }
         }
+    }
+
+    private Hashtable<Integer, Double[]> solveMasterProblem(){
+        Hashtable<Integer, Double[]> solution = new Hashtable<>();
+        problem.setObj(this.objective);
+        problem.setSense(XPRB.MINIM);
+        problem.sync(XPRB.XPRS_PROB);
+        problem.solve("g");
+
+        //Hent ut dualverdiene
+
+        return solution;
+    }
+
+    private void addLabelToMaster(Label label){
+        
     }
 
 }

@@ -48,7 +48,7 @@ public class PathBuilder {
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
             for(int i = 0; i < nodes.size(); i++){
-                if(inputdata.distanceLane[label.node][i] != -1){
+                if(inputdata.plowingtimeLane[label.node][i] != -1){
                     Label newLabel = ExtendLabelLane(i, label, false, dualValues);
                     if(newLabel != null) {
                         if(checkDominanceLane(newLabel, unprocessed,processed)){
@@ -86,7 +86,7 @@ public class PathBuilder {
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
             for(int i = 0; i < nodes.size(); i++){
-                if(inputdata.distanceSidewalk[i][label.node] != -1){
+                if(inputdata.plowingtimeSidewalk[i][label.node] != -1){
                     if(inputdata.numberOfPlowJobsSidewalk[i][L.node] > 1){
                         Label newLabel = ExtendLabelSidewalk(i, label, false, dualValues);
                         if(newLabel != null){
@@ -119,7 +119,7 @@ public class PathBuilder {
             L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
         }
         if(!deadhead){
-            L2.arraivingTime = L.arraivingTime + inputdata.distanceLane[L.node][node];
+            L2.arraivingTime = L.arraivingTime + inputdata.plowingtimeLane[L.node][node];
             L2.lastTimePlowedNode[L.node][node] = L2.arraivingTime;
             L2.numberOfTimesPlowed[L.node][node] = L.numberOfTimesPlowed[L.node][node];
             if(L2.numberOfTimesPlowed[L.node][node] > inputdata.numberOfPlowJobsLane[L.node][node]){
@@ -149,7 +149,7 @@ public class PathBuilder {
             L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
         }
         if(!deadhead){
-            L2.arraivingTime = L.arraivingTime - inputdata.distanceLane[node][L.node];
+            L2.arraivingTime = L.arraivingTime - inputdata.plowingtimeLane[node][L.node];
             if(L.numberOfTimesPlowed[node][L.node] == 0){
                 L2.lastTimePlowedNode[node][L.node] = L.arraivingTime;
             }

@@ -19,3 +19,10 @@ public class Main {
 
     }
 }
+
+
+// What to do:
+//Håndtere kostnad i extendLabel og dominateLabel
+//Fikse kode for å håndtere input
+//Hent ut kostnad i solveMaster
+//Fikse addLabel
