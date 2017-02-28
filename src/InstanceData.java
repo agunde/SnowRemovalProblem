@@ -12,6 +12,7 @@ public class InstanceData {
     public int[][] numberOfLanesOnArc;
     public int[][] numberofSidewalksOnArc;
     public int maxTime;
+    public int antallNoder;
     public int startNode;
     public int endNode;
     public String instanceName;

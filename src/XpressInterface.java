@@ -46,15 +46,13 @@ public class XpressInterface {
 
     public ArrayList<VehicleLane>  vehicleLane;
     public ArrayList<VehicleSidewalk> vehicleSidewalk;
-    public ArrayList<Node> nodes;
     public InstanceData inputdata;
     public PathBuilder builder;
     private Filewriter filewriter;
 
-    public XpressInterface(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, ArrayList<Node> nodes, InstanceData inputdata) {
+    public XpressInterface(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, InstanceData inputdata) {
         this.vehicleLane = vehicleLane;
         this.vehicleSidewalk = vehicleSidewalk;
-        this.nodes = nodes;
         this.inputdata = inputdata;
         this.builder = new PathBuilder(vehicleLane, vehicleSidewalk, inputdata);
 //		builder.BuildPaths(vessels.get(1),15);
@@ -84,19 +82,18 @@ public class XpressInterface {
 //		this.problem.setColOrder(1);
         this.objective = new XPRBexpr();
         this.waitVariable = new XPRBvar[vehicleSidewalk.size()];
-        this.makespanVariable = new XPRBvar;
-        this.precedenceVariable = new XPRBvar[nodes.size()][nodes.size()];
+        this.precedenceVariable = new XPRBvar[inputdata.antallNoder][inputdata.antallNoder];
         this.routeVariables = new  ArrayList<ArrayList<XPRBvar>>();
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
-            this.waitVariable[k] = problem.newVar("waitVar "+k, XPRB.PL);
+            this.waitVariable[k] = problem.newVar("waitVar "+k, XPRB.PL,0, XPRB.INFINITY);
         }
 
-        this.makespanVariable = problem.newVar("makespanVar", XPRB.PL);
+        this.makespanVariable = problem.newVar("makespanVar", XPRB.PL,0,XPRB.INFINITY);
         this.objective.addTerm(this.makespanVariable,1);
 
-        for (int i = 0; i < nodes.size(); i++){
-            for(int j = 0; j < nodes.size(); j++){
+        for (int i = 0; i < inputdata.antallNoder; i++){
+            for(int j = 0; j < inputdata.antallNoder; j++){
                 this.precedenceVariable[i][j] = problem.newVar("precedence "+i+" "+j, XPRB.BV);
             }
         }
@@ -107,18 +104,18 @@ public class XpressInterface {
 
 
         //Constraints
-        this.allLanesPlowedCons = new XPRBctr[nodes.size()][nodes.size()];
-        this.allSidewalksPlowedCons = new XPRBctr[nodes.size()][nodes.size()];
+        this.allLanesPlowedCons = new XPRBctr[inputdata.antallNoder][inputdata.antallNoder];
+        this.allSidewalksPlowedCons = new XPRBctr[inputdata.antallNoder][inputdata.antallNoder];
         this.chooseRouteLaneCons = new XPRBctr[vehicleLane.size()];
         this.chooseRouteSidewalkCons = new XPRBctr[vehicleSidewalk.size()];
-        this.precedenceLaneCons = new XPRBctr[vehicleLane.size()][nodes.size()][nodes.size()];
-        this.precedenceSidewalkCons = new XPRBctr[vehicleSidewalk.size()][nodes.size()][nodes.size()];
+        this.precedenceLaneCons = new XPRBctr[vehicleLane.size()][inputdata.antallNoder][inputdata.antallNoder];
+        this.precedenceSidewalkCons = new XPRBctr[vehicleSidewalk.size()][inputdata.antallNoder][inputdata.antallNoder];
         this.makespanLaneCons = new XPRBctr[vehicleLane.size()];
         this.makespanSidewalkCons = new XPRBctr[vehicleSidewalk.size()];
         this.maxWaitTimeCons = new XPRBctr[vehicleSidewalk.size()];
 
-        for(int i = 0; i < nodes.size(); i++){
-            for(int j = 0; j < nodes.size(); j++) {
+        for(int i = 0; i < inputdata.antallNoder; i++){
+            for(int j = 0; j < inputdata.antallNoder; j++) {
                 if(inputdata.plowingtimeLane[i][j] > 0){
                     this.allLanesPlowedCons[i][j] = problem.newCtr("Plowing demand lanes con");
                     this.allLanesPlowedCons[i][j].setType(XPRB.G);
@@ -161,8 +158,8 @@ public class XpressInterface {
         }
 
         for(int k = 0; k < vehicleLane.size(); k++){
-            for(int i = 0; i <nodes.size(); i++){
-                for(int j = 0; j < nodes.size(); j++){
+            for(int i = 0; i <inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         this.precedenceLaneCons[k][i][j] = problem.newCtr("Precedence lane con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
@@ -174,8 +171,8 @@ public class XpressInterface {
         }
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
-            for(int i = 0; i < nodes.size(); i++){
-                for(int j = 0; j < nodes.size(); j++){
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         this.precedenceSidewalkCons[k][i][j] = problem.newCtr("Precedence sidewalk con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
@@ -190,21 +187,20 @@ public class XpressInterface {
 
 
     }
-
+//Oppdatere dualveridiene her
     private void solveProblem(){
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
             boolean tempBoolean = false;
-            Hashtable<Integer, Double[]> solution = solveMasterProblem();
             for(VehicleLane v: vehicleLane) {
-                Label labelLane = builder.buildPathLane(v, solution.get(v));
+                Label labelLane = builder.buildPathLane(v);
                 if(labelLane != null){
                     addLabelToMaster(labelLane, true);
                     tempBoolean = true;
                 }
             }
             for(int v = 0; v < vehicleSidewalk.size(); v++) {
-                Label labelSidewalk = builder.buildPathSidewalk(v, solution.get(vehicleLane.size() + v));
+                Label labelSidewalk = builder.buildPathSidewalk(vehicleSidewalk.get(v));
                 if(labelSidewalk != null){
                     addLabelToMaster(labelSidewalk, false);
                     tempBoolean = true;
@@ -216,8 +212,7 @@ public class XpressInterface {
         }
     }
 
-    private Hashtable<Integer, Double[]> solveMasterProblem(){
-        Hashtable<Integer, Double[]> solution = new Hashtable<>();
+    private void solveMasterProblem(){
         problem.setObj(this.objective);
         problem.setSense(XPRB.MINIM);
         problem.sync(XPRB.XPRS_PROB);
@@ -225,7 +220,7 @@ public class XpressInterface {
 
         //Hent ut dualverdiene
 
-        return solution;
+
     }
 
     private void addLabelToMaster(Label label, boolean LaneVehicle){

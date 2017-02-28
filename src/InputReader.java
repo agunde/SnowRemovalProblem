@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class InputReader {
 
-    public static void inputReader(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, ArrayList<Node> nodes, String testdata, String instance, InstanceData inputdata){
+    public static void inputReader(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, String testdata, String instance, InstanceData inputdata){
 
     }
 }
