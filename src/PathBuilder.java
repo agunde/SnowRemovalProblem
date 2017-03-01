@@ -7,33 +7,41 @@ import java.util.Arrays;
 import java.util.Hashtable;
 
 public class PathBuilder {
-    public ArrayList<VehicleLane> vehicleLanes;
-    public ArrayList<VehicleSidewalk> vehicleSidewalks;
+    public ArrayList<VehicleLane> vehicleLane;
+    public ArrayList<VehicleSidewalk> vehicleSidewalk;
     public InstanceData inputdata;
     public ArrayList<Hashtable<Integer, Boolean>> feasibilityLane;
     public ArrayList<Hashtable<Integer, Boolean>> feasibilitySidewalk;
-    public Double[] dualBetaSidewalk;
-    public Double[] dualBetaLane;
-    public Double[][] dualAlphaSidewalk;
-    public Double[][] dualAlphaLane;
-    public Double[][][] dualGammaSidewalk;
-    public Double[][][] dualGammaLane;
-    public Double[] dualSigmaSidewalk;
-    public Double[] dualSigmaLane;
+    public double[] dualBetaSidewalk;
+    public double[] dualBetaLane;
+    public double[][] dualAlphaSidewalk;
+    public double[][] dualAlphaLane;
+    public double[][][] dualGammaSidewalk;
+    public double[][][] dualGammaLane;
+    public double[] dualSigmaSidewalk;
+    public double[] dualSigmaLane;
 
 
-    public PathBuilder(ArrayList<VehicleLane> vehicleLanes, ArrayList<VehicleSidewalk> vehicleSidewalks, InstanceData inputdata){
-        this.vehicleLanes = vehicleLanes;
-        this.vehicleSidewalks = vehicleSidewalks;
+    public PathBuilder(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, InstanceData inputdata){
+        this.vehicleLane = vehicleLane;
+        this.vehicleSidewalk = vehicleSidewalk;
         this.inputdata = inputdata;
         feasibilityLane = new ArrayList<Hashtable<Integer, Boolean>>();
-        for(int k = 0; k < vehicleLanes.size(); k++){
+        for(int k = 0; k < vehicleLane.size(); k++){
             feasibilityLane.add(new Hashtable<Integer, Boolean>());
         }
         feasibilitySidewalk = new ArrayList<Hashtable<Integer, Boolean>>();
-        for(int k = 0; k < vehicleSidewalks.size(); k++){
+        for(int k = 0; k < vehicleSidewalk.size(); k++){
             feasibilitySidewalk.add(new Hashtable<Integer, Boolean>());
         }
+        this.dualBetaSidewalk = new double[this.vehicleSidewalk.size()];
+        this.dualBetaLane = new double[this.vehicleLane.size()];
+        this.dualAlphaSidewalk = new double[this.inputdata.antallNoder][this.inputdata.antallNoder];
+        this.dualAlphaLane = new double[this.inputdata.antallNoder][this.inputdata.antallNoder];
+        this.dualGammaSidewalk = new double[this.vehicleSidewalk.size()][this.inputdata.antallNoder][this.inputdata.antallNoder];
+        this.dualGammaLane = new double[this.vehicleLane.size()][this.inputdata.antallNoder][this.inputdata.antallNoder];
+        this.dualSigmaSidewalk = new double[this.vehicleSidewalk.size()];
+        this.dualSigmaLane = new double[this.vehicleLane.size()];
     }
 
     public Label buildPathLane(VehicleLane vehicleLane) {
@@ -267,35 +275,35 @@ public class PathBuilder {
         return false;
     }
 
-    public void setDualBetaSidewalk(Double[] dualBetaSidewalk) {
+    public void setDualBetaSidewalk(double[] dualBetaSidewalk) {
         this.dualBetaSidewalk = dualBetaSidewalk;
     }
 
-    public void setDualBetaLane(Double[] dualBetaLane) {
+    public void setDualBetaLane(double[] dualBetaLane) {
         this.dualBetaLane = dualBetaLane;
     }
 
-    public void setDualAlphaSidewalk(Double[][] dualAlphaSidewalk) {
+    public void setDualAlphaSidewalk(double[][] dualAlphaSidewalk) {
         this.dualAlphaSidewalk = dualAlphaSidewalk;
     }
 
-    public void setDualAlphaLane(Double[][] dualAlphaLane) {
+    public void setDualAlphaLane(double[][] dualAlphaLane) {
         this.dualAlphaLane = dualAlphaLane;
     }
 
-    public void setDualGammaSidewalk(Double[][][] dualGammaSidewalk) {
+    public void setDualGammaSidewalk(double[][][] dualGammaSidewalk) {
         this.dualGammaSidewalk = dualGammaSidewalk;
     }
 
-    public void setDualGammaLane(Double[][][] dualGammaLane) {
+    public void setDualGammaLane(double[][][] dualGammaLane) {
         this.dualGammaLane = dualGammaLane;
     }
 
-    public void setDualSigmaSidewalk(Double[] dualSigmaSidewalk) {
+    public void setDualSigmaSidewalk(double[] dualSigmaSidewalk) {
         this.dualSigmaSidewalk = dualSigmaSidewalk;
     }
 
-    public void setDualSigmaLane(Double[] dualSigmaLane) {
+    public void setDualSigmaLane(double[] dualSigmaLane) {
         this.dualSigmaLane = dualSigmaLane;
     }
 

@@ -22,5 +22,4 @@ public class Main {
 
 // What to do:
 //Fikse kode for å håndtere input
-//Hent ut kostnad i solveMaster - begynn her, oppdater alle dualene i subproblemet
-//Fikse addLabel
+//Fikse addLabel - fortsett med dette

@@ -192,6 +192,7 @@ public class XpressInterface {
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
             boolean tempBoolean = false;
+            solveMasterProblem();
             for(VehicleLane v: vehicleLane) {
                 Label labelLane = builder.buildPathLane(v);
                 if(labelLane != null){
@@ -218,8 +219,58 @@ public class XpressInterface {
         problem.sync(XPRB.XPRS_PROB);
         problem.solve("g");
 
-        //Hent ut dualverdiene
+        double[] dualBetaSidewalk = new double[this.vehicleSidewalk.size()];
+        double[] dualBetaLane = new double[this.vehicleLane.size()];
+        double[][] dualAlphaSidewalk = new double[this.inputdata.antallNoder][this.inputdata.antallNoder];
+        double[][] dualAlphaLane = new double[this.inputdata.antallNoder][this.inputdata.antallNoder];
+        double[][][] dualGammaSidewalk = new double[this.vehicleSidewalk.size()][this.inputdata.antallNoder][this.inputdata.antallNoder];
+        double[][][] dualGammaLane = new double[this.vehicleLane.size()][this.inputdata.antallNoder][this.inputdata.antallNoder];
+        double[] dualSigmaSidewalk = new double[this.vehicleSidewalk.size()];
+        double[] dualSigmaLane = new double[this.vehicleLane.size()];
 
+        for(int i = 0; i < inputdata.antallNoder; i++){
+            for(int j = 0; j < inputdata.antallNoder; j++){
+                if(inputdata.plowingtimeLane[i][j] > 0){
+                    dualAlphaLane[i][j] = allLanesPlowedCons[i][j].getDual();
+                }
+                if(inputdata.plowingtimeSidewalk[i][j] > 0){
+                    dualAlphaSidewalk[i][j] = allSidewalksPlowedCons[i][j].getDual();
+                }
+            }
+        }
+
+        for(int k = 0; k < vehicleLane.size(); k++){
+            dualBetaLane[k] = chooseRouteLaneCons[k].getDual();
+
+            dualSigmaLane[k] = makespanLaneCons[k].getDual();
+
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++){
+                    dualGammaLane[k][i][j] = precedenceLaneCons[k][i][j].getDual();
+                }
+            }
+        }
+
+        for(int k = 0; k < vehicleSidewalk.size(); k++){
+            dualBetaSidewalk[k] = chooseRouteSidewalkCons[k].getDual();
+
+            dualSigmaSidewalk[k] = maxWaitTimeCons[k].getDual();
+
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++){
+                    dualGammaSidewalk[k][i][j] = precedenceSidewalkCons[k][i][j].getDual();
+                }
+            }
+
+        }
+        builder.setDualAlphaLane(dualAlphaLane);
+        builder.setDualAlphaSidewalk(dualAlphaSidewalk);
+        builder.setDualBetaLane(dualBetaLane);
+        builder.setDualBetaSidewalk(dualBetaSidewalk);
+        builder.setDualGammaLane(dualGammaLane);
+        builder.setDualGammaSidewalk(dualGammaSidewalk);
+        builder.setDualSigmaLane(dualSigmaLane);
+        builder.setDualSigmaSidewalk(dualSigmaSidewalk);
 
     }
 
