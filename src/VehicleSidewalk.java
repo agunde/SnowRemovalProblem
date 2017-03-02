@@ -4,6 +4,10 @@
 public class VehicleSidewalk implements Vehicle{
     public int number;
 
+    public VehicleSidewalk(int number){
+        this.number = number;
+    }
+
     public int getNumber() {
         return number;
     }

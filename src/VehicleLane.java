@@ -4,6 +4,10 @@
 public class VehicleLane implements Vehicle {
     public int number;
 
+    public VehicleLane(int number){
+        this.number = number;
+    }
+
     public int getNumber() {
         return number;
     }

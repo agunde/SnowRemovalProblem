@@ -22,4 +22,4 @@ public class Main {
 
 // What to do:
 //Fikse kode for å håndtere input
-//Fikse addLabel - fortsett med dette
+//Lag initsielle label

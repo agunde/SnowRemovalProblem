@@ -51,10 +51,13 @@ public class PathBuilder {
         L.arraivingTime = 0;
         L.cost = -dualBetaLane[L.vehicle.getNumber()];
         L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
-        Arrays.fill(L.lastTimePlowedNode, 0);
+        for( int[] row : L.lastTimePlowedNode){
+            Arrays.fill(row,0);
+        }
         L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
-        Arrays.fill(L.numberOfTimesPlowed, 0);
-
+        for(int[] row: L.numberOfTimesPlowed){
+            Arrays.fill(row,0);
+        }
         ArrayList<Label> unprocessed = new ArrayList<>();
         ArrayList<Label> processed = new ArrayList<>();
         unprocessed.add(L);
@@ -62,26 +65,37 @@ public class PathBuilder {
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
             for(int i = 0; i < inputdata.antallNoder; i++){
-                if(inputdata.plowingtimeLane[label.node][i] != -1){
-                    Label newLabelLane = ExtendLabelLane(i, label, false);
-                    if(newLabelLane != null) {
-                        if(checkDominanceLane(newLabelLane, unprocessed,processed)){
-                            unprocessed.add(newLabelLane);
+                if(inputdata.deadheadingtimeLane[label.node][i] != -1){
+                    if(inputdata.numberOfPlowJobsSidewalk[label.node][i] > 0){
+                        Label newLabelPlow = ExtendLabelLane(i, label, false);
+                        if(newLabelPlow != null) {
+                            if(checkDominanceLane(newLabelPlow, unprocessed,processed)){
+                                unprocessed.add(newLabelPlow);
+                            }
                         }
+
                     }
-                    Label newLabelSidewalk = ExtendLabelLane(i, label, true);
-                    if(newLabelSidewalk != null) {
-                        if(checkDominanceLane(newLabelSidewalk, unprocessed, processed)){
-                            unprocessed.add(newLabelSidewalk);
+
+                    Label newLabelDeadheading = ExtendLabelLane(i, label, true);
+                    if(newLabelDeadheading != null) {
+                        if(checkDominanceLane(newLabelDeadheading, unprocessed, processed)){
+                            unprocessed.add(newLabelDeadheading);
                         }
                     }
                 }
 
             }
+            processed.add(label);
+
+            if(label.node == inputdata.endNode && label.cost < 0){
+                return label;
+            }
+
         }
-        return L;
+        return null;
     }
 
+    //fortsett her
     public Label buildPathSidewalk(VehicleSidewalk vehicleSidewalk){
         Label L = new Label();
         L.node = inputdata.endNode;
@@ -89,9 +103,14 @@ public class PathBuilder {
         L.arraivingTime = inputdata.maxTime;
         L.cost = -dualBetaSidewalk[L.vehicle.getNumber()];
         L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
-        Arrays.fill(L.lastTimePlowedNode, 0);
+        for(int[] row : L.lastTimePlowedNode){
+            Arrays.fill(row,inputdata.maxTime);
+        }
+
         L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
-        Arrays.fill(L.numberOfTimesPlowed, 0);
+        for(int[] row : L.numberOfTimesPlowed){
+            Arrays.fill(row,0);
+        }
 
         ArrayList<Label> unprocessed = new ArrayList<>();
         ArrayList<Label> processed = new ArrayList<>();
@@ -100,8 +119,8 @@ public class PathBuilder {
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
             for(int i = 0; i < inputdata.antallNoder; i++){
-                if(inputdata.plowingtimeSidewalk[i][label.node] != -1){
-                    if(inputdata.numberOfPlowJobsSidewalk[i][L.node] > 1){
+                if(inputdata.deadheadingtimeSidewalk[i][label.node] != -1){
+                    if(inputdata.numberOfPlowJobsSidewalk[i][L.node] > 0){
                         Label newLabel = ExtendLabelSidewalk(i, label, false);
                         if(newLabel != null){
                             if(checkDominanceSidewalk(newLabel, unprocessed,processed)){
@@ -117,8 +136,13 @@ public class PathBuilder {
                     }
                 }
             }
+            processed.add(label);
+
+            if(label.node == inputdata.endNode && label.cost < 0){
+                return label;
+            }
         }
-        return L;
+        return null;
     }
 
 
@@ -127,6 +151,8 @@ public class PathBuilder {
         L2.node = node;
         L2.predecessor = L;
         L2.vehicle = L.vehicle;
+        L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
         for (int i = 0; i < inputdata.antallNoder; i++){
             L2.numberOfTimesPlowed[i] = L.numberOfTimesPlowed[i].clone();
             L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
@@ -158,6 +184,8 @@ public class PathBuilder {
         L2.node  = node;
         L2.predecessor = L;
         L2.vehicle = L.vehicle;
+        L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
         for(int i = 0; i < inputdata.antallNoder; i++){
             L2.numberOfTimesPlowed[i] = L.numberOfTimesPlowed[i].clone();
             L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();

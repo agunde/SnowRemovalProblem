@@ -239,18 +239,6 @@ public class XpressInterface {
             }
         }
 
-        for(int k = 0; k < vehicleLane.size(); k++){
-            dualBetaLane[k] = chooseRouteLaneCons[k].getDual();
-
-            dualSigmaLane[k] = makespanLaneCons[k].getDual();
-
-            for(int i = 0; i < inputdata.antallNoder; i++){
-                for(int j = 0; j < inputdata.antallNoder; j++){
-                    dualGammaLane[k][i][j] = precedenceLaneCons[k][i][j].getDual();
-                }
-            }
-        }
-
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             dualBetaSidewalk[k] = chooseRouteSidewalkCons[k].getDual();
 
@@ -258,11 +246,29 @@ public class XpressInterface {
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    dualGammaSidewalk[k][i][j] = precedenceSidewalkCons[k][i][j].getDual();
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                        dualGammaSidewalk[k][i][j] = precedenceSidewalkCons[k][i][j].getDual();
+                    }
                 }
             }
 
         }
+
+        for(int k = 0; k < vehicleLane.size(); k++){
+            dualBetaLane[k] = chooseRouteLaneCons[k].getDual();
+
+            dualSigmaLane[k] = makespanLaneCons[k].getDual();
+
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                        dualGammaLane[k][i][j] = precedenceLaneCons[k][i][j].getDual();
+                    }
+                }
+            }
+        }
+
+
         builder.setDualAlphaLane(dualAlphaLane);
         builder.setDualAlphaSidewalk(dualAlphaSidewalk);
         builder.setDualBetaLane(dualBetaLane);
@@ -274,16 +280,46 @@ public class XpressInterface {
 
     }
 
-    private void addLabelToMaster(Label label, boolean LaneVehicle){
+    //endre til private
+    public void addLabelToMaster(Label label, boolean LaneVehicle){
         XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.BV,0,XPRB.INFINITY);
 
         if(LaneVehicle == true){
             routeVariables.get(label.vehicle.getNumber()).add(lambdaVar);
+
+            this.chooseRouteLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
+            this.makespanLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar, label.arraivingTime);
         }
         else if(LaneVehicle == false){
             routeVariables.get(vehicleLane.size()+label.vehicle.getNumber()).add(lambdaVar);
+
+            this.chooseRouteSidewalkCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
+            this.maxWaitTimeCons[label.vehicle.getNumber()].addTerm(lambdaVar,inputdata.maxTime - label.arraivingTime);
         }
         pathList.put(routeVariables.size()-1, label);
+
+        for(int i = 0; i < inputdata.antallNoder; i++){
+            for(int j = 0; j < inputdata.antallNoder; j++){
+                if(LaneVehicle == true){
+                    if(inputdata.numberOfPlowJobsLane[i][j] > 0){
+                        this.allLanesPlowedCons[i][j].addTerm(lambdaVar, label.numberOfTimesPlowed[i][j]);
+
+                        if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                            this.precedenceLaneCons[label.vehicle.getNumber()][i][j].addTerm(lambdaVar,label.lastTimePlowedNode[i][j]);
+                        }
+                    }
+                }
+                else if(LaneVehicle == false){
+                    if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                        this.allSidewalksPlowedCons[i][j].addTerm(lambdaVar, label.numberOfTimesPlowed[i][j]);
+
+                        if(inputdata.numberOfPlowJobsLane[i][j] > 0){
+                            this.precedenceSidewalkCons[label.vehicle.getNumber()][i][j].addTerm(lambdaVar,-label.lastTimePlowedNode[i][j]);
+                        }
+                    }
+                }
+            }
+        }
 
     }
 
