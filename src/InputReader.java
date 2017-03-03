@@ -10,10 +10,10 @@ public class InputReader {
     public static void inputReader(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, String testdata, String instance, InstanceData inputdata){
 
         int numberOfVehiclesLane = 2;
-        int numberOfVehiclesSidewalk = 1;
+        int numberOfVehiclesSidewalk = 2;
         int maxTime = 30;
         int antallNoder = 6;
-        int startNode = 1;
+        int startNode = 0;
         int endNode = 5;
 
         for(int k = 0; k < numberOfVehiclesLane; k++){
@@ -112,10 +112,6 @@ public class InputReader {
         inputdata.numberOfLanesOnArc = numberOfLanesOnArc;
         inputdata.numberofSidewalksOnArc = numberOfSidewalksOnArc;
         inputdata.timeWindowLane = timeWindowLane;
-
-        //lag tre nye labels her
-        Label label = new Label();
-        label.node = 5;
 
 
     }

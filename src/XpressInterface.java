@@ -189,6 +189,9 @@ public class XpressInterface {
     }
 //Oppdatere dualveridiene her
     private void solveProblem(){
+        //Lagt til en midlertidig metode
+        generateInitialPaths();
+        //Midlertidig metode slutt
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
             boolean tempBoolean = false;
@@ -280,8 +283,8 @@ public class XpressInterface {
 
     }
 
-    //endre til private
-    public void addLabelToMaster(Label label, boolean LaneVehicle){
+
+    private void addLabelToMaster(Label label, boolean LaneVehicle){
         XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.BV,0,XPRB.INFINITY);
 
         if(LaneVehicle == true){
@@ -321,6 +324,95 @@ public class XpressInterface {
             }
         }
 
+    }
+
+    //Midlertidig metode
+    private void generateInitialPaths(){
+        //lag tre nye labels her
+        Label label1 = new Label();
+        label1.node = 5;
+        label1.vehicle = vehicleLane.get(0);
+        label1.arraivingTime = 20;
+        label1.cost = 0;
+        int[][] lastTimePlowedNodeLabel1 = { {0,0,0,0,0,0},
+                {0,0,3,0,0,0},
+                {0,6,0,13,0,0},
+                {0,0,17,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label1.lastTimePlowedNode = lastTimePlowedNodeLabel1;
+        int[][] numberOfTimesPlowedLabel1 = { {0,0,0,0,0,0},
+                {0,0,1,0,0,0},
+                {0,1,0,1,0,0},
+                {0,0,1,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label1.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
+
+        Label label2 = new Label();
+        label2.node = 5;
+        label2.vehicle = vehicleLane.get(1);
+        label2.arraivingTime = 26;
+        label2.cost = 0;
+        int[][] lastTimePlowedNodeLabel2 = { {0,0,0,0,0,0},
+                {0,0,0,0,6,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,20,0},
+                {0,12,0,19,0,0},
+                {0,0,0,0,0,0}};
+        label2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
+        int[][] numberOfTimesPlowedLabel2 = { {0,0,0,0,0,0},
+                {0,0,0,0,1,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,1,0},
+                {0,1,0,1,0,0},
+                {0,0,0,0,0,0}};
+        label2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
+
+        Label label3 = new Label();
+        label3.node = 5;
+        label3.vehicle = vehicleSidewalk.get(0);
+        label3.arraivingTime = 24;
+        label3.cost = 0;
+        int[][] lastTimePlowedNodeLabel3 = { {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,15,0,0},
+                {0,0,21,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label3.lastTimePlowedNode = lastTimePlowedNodeLabel3;
+        int[][] numberOfTimesPlowedLabel3 = { {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,1,0,0},
+                {0,0,1,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label3.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
+
+        Label label4 = new Label();
+        label4.node = 5;
+        label4.vehicle = vehicleSidewalk.get(1);
+        label4.arraivingTime = 28;
+        label4.cost = 0;
+        int[][] lastTimePlowedNodeLabel4 = { {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,22,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label4.lastTimePlowedNode = lastTimePlowedNodeLabel4;
+        int[][] numberOfTimesPlowedLabel4 = { {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,1,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,0,0}};
+        label4.numberOfTimesPlowed = numberOfTimesPlowedLabel4;
+
+        addLabelToMaster(label1,true);
+        addLabelToMaster(label2,true);
+        addLabelToMaster(label3,false);
+        addLabelToMaster(label4,false);
     }
 
 }
