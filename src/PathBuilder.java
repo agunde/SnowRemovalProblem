@@ -160,7 +160,7 @@ public class PathBuilder {
         if(!deadhead){
             L2.arraivingTime = L.arraivingTime + inputdata.plowingtimeLane[L.node][node];
             L2.cost = L.cost - (L2.arraivingTime - L.arraivingTime)*dualSigmaLane[L2.vehicle.getNumber()]-dualAlphaLane[L.node][node]-(L2.arraivingTime-L.lastTimePlowedNode[L.node][node])*dualGammaLane[L2.vehicle.getNumber()][L.node][node];
-            L2.lastTimePlowedNode[L.node][node] = L2.arraivingTime;
+            L2.lastTimePlowedNode[L.node][node] = L.arraivingTime;
             L2.numberOfTimesPlowed[L.node][node] = L.numberOfTimesPlowed[L.node][node]+1;
             if(L2.numberOfTimesPlowed[L.node][node] > inputdata.numberOfPlowJobsLane[L.node][node]){
                 return null;
@@ -194,7 +194,7 @@ public class PathBuilder {
             L2.arraivingTime = L.arraivingTime - inputdata.plowingtimeLane[node][L.node];
             L2.cost = L.cost -(L.arraivingTime - L2.arraivingTime)*dualSigmaSidewalk[L2.vehicle.getNumber()]-dualAlphaSidewalk[node][L.node];
             if(L.numberOfTimesPlowed[node][L.node] == 0){
-                L2.lastTimePlowedNode[node][L.node] = L.arraivingTime;
+                L2.lastTimePlowedNode[node][L.node] = L2.arraivingTime;
                 L2.cost = L2.cost - L.arraivingTime*dualGammaSidewalk[L2.vehicle.getNumber()][node][L.node];
             }
             L2.numberOfTimesPlowed[node][L.node] = L.numberOfTimesPlowed[node][L.node] + 1;
