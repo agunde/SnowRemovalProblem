@@ -374,22 +374,22 @@ public class XpressInterface {
         label3.vehicle = vehicleSidewalk.get(0);
         label3.arraivingTime = 24;
         label3.cost = 0;
-        int[][] lastTimePlowedNodeLabel3 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,15,0,0},
-                {0,0,21,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
+        int[][] lastTimePlowedNodeLabel3 = { {30,30,30,30,30,30},
+                {30,30,30,30,30,30},
+                {30,30,30,15,30,30},
+                {30,30,9,30,21,30},
+                {30,30,30,30,30,30},
+                {30,30,30,30,30,30}};
         label3.lastTimePlowedNode = lastTimePlowedNodeLabel3;
         int[][] numberOfTimesPlowedLabel3 = { {0,0,0,0,0,0},
                 {0,0,0,0,0,0},
                 {0,0,0,1,0,0},
-                {0,0,1,0,0,0},
+                {0,0,1,0,1,0},
                 {0,0,0,0,0,0},
                 {0,0,0,0,0,0}};
         label3.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
 
-        Label label4 = new Label();
+        /*Label label4 = new Label();
         label4.node = 5;
         label4.vehicle = vehicleSidewalk.get(1);
         label4.arraivingTime = 28;
@@ -407,12 +407,12 @@ public class XpressInterface {
                 {0,0,0,0,1,0},
                 {0,0,0,0,0,0},
                 {0,0,0,0,0,0}};
-        label4.numberOfTimesPlowed = numberOfTimesPlowedLabel4;
+        label4.numberOfTimesPlowed = numberOfTimesPlowedLabel4;*/
 
         addLabelToMaster(label1,true);
         addLabelToMaster(label2,true);
         addLabelToMaster(label3,false);
-        addLabelToMaster(label4,false);
+        //addLabelToMaster(label4,false);
     }
 
 }

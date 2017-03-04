@@ -10,7 +10,7 @@ public class InputReader {
     public static void inputReader(ArrayList<VehicleLane> vehicleLane, ArrayList<VehicleSidewalk> vehicleSidewalk, String testdata, String instance, InstanceData inputdata){
 
         int numberOfVehiclesLane = 2;
-        int numberOfVehiclesSidewalk = 2;
+        int numberOfVehiclesSidewalk = 1;
         int maxTime = 30;
         int antallNoder = 6;
         int startNode = 0;
