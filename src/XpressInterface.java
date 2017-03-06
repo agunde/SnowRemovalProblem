@@ -2,6 +2,7 @@
  * Created by Anders H. Gundersen on 13.02.2017.
  */
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -20,7 +21,7 @@ public class XpressInterface {
     private Hashtable<Integer, Label> pathList;
 
     //Variables
-    private ArrayList<ArrayList<XPRBvar>> routeVariables;
+    private ArrayList<XPRBvar> routeVariables;
     private XPRBvar[][] precedenceVariable;
     private XPRBvar makespanVariable;
     private XPRBvar[] waitVariable;
@@ -60,7 +61,8 @@ public class XpressInterface {
         this.pathList = new Hashtable<Integer, Label>();
         this.filewriter = new Filewriter("output.txt");
         buildProblem();
-        solveProblem();
+        //solveProblem();
+        solveProblemAllPaths();
     }
 
     private void buildProblem() {
@@ -83,7 +85,7 @@ public class XpressInterface {
         this.objective = new XPRBexpr();
         this.waitVariable = new XPRBvar[vehicleSidewalk.size()];
         this.precedenceVariable = new XPRBvar[inputdata.antallNoder][inputdata.antallNoder];
-        this.routeVariables = new  ArrayList<ArrayList<XPRBvar>>();
+        this.routeVariables = new  ArrayList<>();
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             this.waitVariable[k] = problem.newVar("waitVar "+k, XPRB.PL,0, XPRB.INFINITY);
@@ -94,9 +96,11 @@ public class XpressInterface {
 
         for (int i = 0; i < inputdata.antallNoder; i++){
             for(int j = 0; j < inputdata.antallNoder; j++){
-                this.precedenceVariable[i][j] = problem.newVar("precedence "+i+" "+j, XPRB.BV);
+                this.precedenceVariable[i][j] = problem.newVar("precedence "+i+" "+j, XPRB.PL,0,XPRB.INFINITY);
             }
         }
+
+
 
 
 
@@ -120,6 +124,7 @@ public class XpressInterface {
                     this.allLanesPlowedCons[i][j] = problem.newCtr("Plowing demand lanes con");
                     this.allLanesPlowedCons[i][j].setType(XPRB.G);
                     this.allLanesPlowedCons[i][j].add(inputdata.numberOfLanesOnArc[i][j]);
+
                 }
                 if(inputdata.plowingtimeSidewalk[i][j] > 0){
                     this.allSidewalksPlowedCons[i][j] = problem.newCtr("Plowing demand sidewalks con");
@@ -175,7 +180,7 @@ public class XpressInterface {
                 for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         this.precedenceSidewalkCons[k][i][j] = problem.newCtr("Precedence sidewalk con");
-                        this.precedenceLaneCons[k][i][j].setType(XPRB.L);
+                        this.precedenceSidewalkCons[k][i][j].setType(XPRB.L);
                         this.precedenceSidewalkCons[k][i][j].add(0);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.precedenceVariable[i][j],1);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.waitVariable[k],1);
@@ -245,7 +250,9 @@ public class XpressInterface {
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             dualBetaSidewalk[k] = chooseRouteSidewalkCons[k].getDual();
 
+
             dualSigmaSidewalk[k] = maxWaitTimeCons[k].getDual();
+
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
@@ -288,13 +295,13 @@ public class XpressInterface {
         XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.BV,0,XPRB.INFINITY);
 
         if(LaneVehicle == true){
-            routeVariables.get(label.vehicle.getNumber()).add(lambdaVar);
+            routeVariables.add(lambdaVar);
 
             this.chooseRouteLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
             this.makespanLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar, label.arraivingTime);
         }
         else if(LaneVehicle == false){
-            routeVariables.get(vehicleLane.size()+label.vehicle.getNumber()).add(lambdaVar);
+            routeVariables.add(lambdaVar);
 
             this.chooseRouteSidewalkCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
             this.maxWaitTimeCons[label.vehicle.getNumber()].addTerm(lambdaVar,inputdata.maxTime - label.arraivingTime);
@@ -332,12 +339,12 @@ public class XpressInterface {
         Label label1 = new Label();
         label1.node = 5;
         label1.vehicle = vehicleLane.get(0);
-        label1.arraivingTime = 20;
+        label1.arraivingTime = 14;
         label1.cost = 0;
         int[][] lastTimePlowedNodeLabel1 = { {0,0,0,0,0,0},
-                {0,0,3,0,0,0},
-                {0,6,0,13,0,0},
-                {0,0,17,0,0,0},
+                {0,0,0,0,0,0},
+                {0,11,0,3,0,0},
+                {0,0,7,0,0,0},
                 {0,0,0,0,0,0},
                 {0,0,0,0,0,0}};
         label1.lastTimePlowedNode = lastTimePlowedNodeLabel1;
@@ -352,13 +359,13 @@ public class XpressInterface {
         Label label2 = new Label();
         label2.node = 5;
         label2.vehicle = vehicleLane.get(1);
-        label2.arraivingTime = 26;
+        label2.arraivingTime = 14;
         label2.cost = 0;
         int[][] lastTimePlowedNodeLabel2 = { {0,0,0,0,0,0},
-                {0,0,0,0,6,0},
                 {0,0,0,0,0,0},
-                {0,0,0,0,20,0},
-                {0,12,0,19,0,0},
+                {0,0,0,0,0,0},
+                {0,0,0,0,7,0},
+                {0,8,0,6,0,0},
                 {0,0,0,0,0,0}};
         label2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
         int[][] numberOfTimesPlowedLabel2 = { {0,0,0,0,0,0},
@@ -370,9 +377,9 @@ public class XpressInterface {
         label2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
 
         Label label3 = new Label();
-        label3.node = 5;
+        label3.node = 0;
         label3.vehicle = vehicleSidewalk.get(0);
-        label3.arraivingTime = 24;
+        label3.arraivingTime = 2;
         label3.cost = 0;
         int[][] lastTimePlowedNodeLabel3 = { {30,30,30,30,30,30},
                 {30,30,30,30,30,30},
@@ -413,6 +420,26 @@ public class XpressInterface {
         addLabelToMaster(label2,true);
         addLabelToMaster(label3,false);
         //addLabelToMaster(label4,false);
+    }
+
+    private void solveProblemAllPaths(){
+        //Lagt til en midlertidig metode
+        //generateInitialPaths();
+        //Midlertidig metode slutt
+        for(VehicleLane v : vehicleLane){
+            ArrayList<Label> labels = builder.generateAllPathsLane(v);
+            for(Label l : labels){
+                addLabelToMaster(l,true);
+            }
+        }
+        for(VehicleSidewalk v: vehicleSidewalk){
+            ArrayList<Label> labels = builder.generateAllPathsSidewalk(v);
+            for(Label l : labels){
+                addLabelToMaster(l,false);
+            }
+        }
+        solveMasterProblem();
+
     }
 
 }

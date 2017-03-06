@@ -66,7 +66,7 @@ public class PathBuilder {
             Label label = unprocessed.remove(0);
             for(int i = 0; i < inputdata.antallNoder; i++){
                 if(inputdata.deadheadingtimeLane[label.node][i] != -1){
-                    if(inputdata.numberOfPlowJobsSidewalk[label.node][i] > 0){
+                    if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
                         Label newLabelPlow = ExtendLabelLane(i, label, false);
                         if(newLabelPlow != null) {
                             if(checkDominanceLane(newLabelPlow, unprocessed,processed)){
@@ -78,6 +78,9 @@ public class PathBuilder {
 
                     Label newLabelDeadheading = ExtendLabelLane(i, label, true);
                     if(newLabelDeadheading != null) {
+                        if(newLabelDeadheading.node == inputdata.endNode && newLabelDeadheading.cost < 0){
+                            return label;
+                        }
                         if(checkDominanceLane(newLabelDeadheading, unprocessed, processed)){
                             unprocessed.add(newLabelDeadheading);
                         }
@@ -87,9 +90,6 @@ public class PathBuilder {
             }
             processed.add(label);
 
-            if(label.node == inputdata.endNode && label.cost < 0){
-                return label;
-            }
 
         }
         return null;
@@ -120,7 +120,7 @@ public class PathBuilder {
             Label label = unprocessed.remove(0);
             for(int i = 0; i < inputdata.antallNoder; i++){
                 if(inputdata.deadheadingtimeSidewalk[i][label.node] != -1){
-                    if(inputdata.numberOfPlowJobsSidewalk[i][L.node] > 0){
+                    if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
                         Label newLabel = ExtendLabelSidewalk(i, label, false);
                         if(newLabel != null){
                             if(checkDominanceSidewalk(newLabel, unprocessed,processed)){
@@ -130,6 +130,9 @@ public class PathBuilder {
                     }
                     Label newLabel = ExtendLabelSidewalk(i,label,true);
                     if(newLabel != null){
+                        if(newLabel.node == inputdata.startNode && newLabel.cost < 0){
+                            return label;
+                        }
                         if(checkDominanceSidewalk(newLabel, unprocessed, processed)){
                             unprocessed.add(newLabel);
                         }
@@ -138,9 +141,6 @@ public class PathBuilder {
             }
             processed.add(label);
 
-            if(label.node == inputdata.endNode && label.cost < 0){
-                return label;
-            }
         }
         return null;
     }
@@ -159,7 +159,7 @@ public class PathBuilder {
         }
         if(!deadhead){
             L2.arraivingTime = L.arraivingTime + inputdata.plowingtimeLane[L.node][node];
-            L2.cost = L.cost - (L2.arraivingTime - L.arraivingTime)*dualSigmaLane[L2.vehicle.getNumber()]-dualAlphaLane[L.node][node]-(L2.arraivingTime-L.lastTimePlowedNode[L.node][node])*dualGammaLane[L2.vehicle.getNumber()][L.node][node];
+            L2.cost = L.cost - (L2.arraivingTime - L.arraivingTime)*dualSigmaLane[L2.vehicle.getNumber()]-dualAlphaLane[L.node][node]-(L.arraivingTime-L.lastTimePlowedNode[L.node][node])*dualGammaLane[L2.vehicle.getNumber()][L.node][node];
             L2.lastTimePlowedNode[L.node][node] = L.arraivingTime;
             L2.numberOfTimesPlowed[L.node][node] = L.numberOfTimesPlowed[L.node][node]+1;
             if(L2.numberOfTimesPlowed[L.node][node] > inputdata.numberOfPlowJobsLane[L.node][node]){
@@ -191,11 +191,11 @@ public class PathBuilder {
             L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
         }
         if(!deadhead){
-            L2.arraivingTime = L.arraivingTime - inputdata.plowingtimeLane[node][L.node];
+            L2.arraivingTime = L.arraivingTime - inputdata.plowingtimeSidewalk[node][L.node];
             L2.cost = L.cost -(L.arraivingTime - L2.arraivingTime)*dualSigmaSidewalk[L2.vehicle.getNumber()]-dualAlphaSidewalk[node][L.node];
             if(L.numberOfTimesPlowed[node][L.node] == 0){
                 L2.lastTimePlowedNode[node][L.node] = L2.arraivingTime;
-                L2.cost = L2.cost - L.arraivingTime*dualGammaSidewalk[L2.vehicle.getNumber()][node][L.node];
+                L2.cost = L2.cost - L2.arraivingTime*dualGammaSidewalk[L2.vehicle.getNumber()][node][L.node];
             }
             L2.numberOfTimesPlowed[node][L.node] = L.numberOfTimesPlowed[node][L.node] + 1;
             if(L2.numberOfTimesPlowed[node][L.node] > inputdata.numberOfPlowJobsSidewalk[node][L.node]){
@@ -338,6 +338,173 @@ public class PathBuilder {
 
 
     //BEGYNN MED VIDERE KODE HER
+    //GJØR ET FORSØK PÅ Å GENERERE ALLE PATHS
+
+     public ArrayList<Label> generateAllPathsLane(VehicleLane vehicleLane){
+        ArrayList<Label>  list = new ArrayList<>();
+         Label L = new Label();
+         L.node = inputdata.startNode;
+         L.vehicle = vehicleLane;
+         L.arraivingTime = 0;
+         //L.cost = -dualBetaLane[L.vehicle.getNumber()];
+         L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+         for( int[] row : L.lastTimePlowedNode){
+             Arrays.fill(row,0);
+         }
+         L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+         for(int[] row: L.numberOfTimesPlowed){
+             Arrays.fill(row,0);
+         }
+         ArrayList<Label> unprocessed = new ArrayList<>();
+         ArrayList<Label> processed = new ArrayList<>();
+         unprocessed.add(L);
+
+         while(!unprocessed.isEmpty()){
+             Label label = unprocessed.remove(0);
+             for(int i = 0; i < inputdata.antallNoder; i++){
+                 if(inputdata.deadheadingtimeLane[label.node][i] != -1){
+                     if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
+                         Label newLabelPlow = ExtendLabelLaneAllPaths(i, label, false);
+                         if(newLabelPlow != null) {
+                             if(true){
+                                 unprocessed.add(newLabelPlow);
+                             }
+                         }
+
+                     }
+
+                     Label newLabelDeadheading = ExtendLabelLaneAllPaths(i, label, true);
+                     if(newLabelDeadheading != null) {
+                         if(newLabelDeadheading.node == inputdata.endNode){
+                             list.add(newLabelDeadheading);
+                         }
+                         unprocessed.add(newLabelDeadheading);
+                     }
+                 }
+
+             }
+             processed.add(label);
+
+
+         }
+         return list;
+
+     }
+
+    public Label ExtendLabelLaneAllPaths(int node, Label L, boolean deadhead) {
+        Label L2 = new Label();
+        L2.node = node;
+        L2.predecessor = L;
+        L2.vehicle = L.vehicle;
+        L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for (int i = 0; i < inputdata.antallNoder; i++){
+            L2.numberOfTimesPlowed[i] = L.numberOfTimesPlowed[i].clone();
+            L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
+        }
+        if(!deadhead){
+            L2.arraivingTime = L.arraivingTime + inputdata.plowingtimeLane[L.node][node];
+            //L2.cost = L.cost - (L2.arraivingTime - L.arraivingTime)*dualSigmaLane[L2.vehicle.getNumber()]-dualAlphaLane[L.node][node]-(L.arraivingTime-L.lastTimePlowedNode[L.node][node])*dualGammaLane[L2.vehicle.getNumber()][L.node][node];
+            L2.lastTimePlowedNode[L.node][node] = L.arraivingTime;
+            L2.numberOfTimesPlowed[L.node][node] = L.numberOfTimesPlowed[L.node][node]+1;
+            if(L2.numberOfTimesPlowed[L.node][node] > inputdata.numberOfPlowJobsLane[L.node][node]){
+                return null;
+            }
+            if(L2.arraivingTime > inputdata.timeWindowLane[L.node][node]){
+                return null;
+            }
+        }
+        if(deadhead){
+            L2.arraivingTime = L.arraivingTime + inputdata.deadheadingtimeLane[L.node][node];
+           //L2.cost = L.cost - (L2.arraivingTime - L.arraivingTime)*dualSigmaLane[L2.vehicle.getNumber()];
+        }
+        if(L2.arraivingTime > inputdata.maxTime){
+            return null;
+        }
+        return L2;
+    }
+
+    public ArrayList<Label> generateAllPathsSidewalk(VehicleSidewalk vehicleSidewalk){
+        ArrayList<Label> list = new ArrayList<>();
+        Label L = new Label();
+        L.node = inputdata.endNode;
+        L.vehicle = vehicleSidewalk;
+        L.arraivingTime = inputdata.maxTime;
+        //L.cost = -dualBetaSidewalk[L.vehicle.getNumber()];
+        L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int[] row : L.lastTimePlowedNode){
+            Arrays.fill(row,inputdata.maxTime);
+        }
+
+        L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int[] row : L.numberOfTimesPlowed){
+            Arrays.fill(row,0);
+        }
+
+        ArrayList<Label> unprocessed = new ArrayList<>();
+        ArrayList<Label> processed = new ArrayList<>();
+        unprocessed.add(L);
+
+        while(!unprocessed.isEmpty()){
+            Label label = unprocessed.remove(0);
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                if(inputdata.deadheadingtimeSidewalk[i][label.node] != -1){
+                    if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
+                        Label newLabel = ExtendLabelSidewalkAllPaths(i, label, false);
+                        if(newLabel != null){
+                            if(true){
+                                unprocessed.add(newLabel);
+                            }
+                        }
+                    }
+                    Label newLabel = ExtendLabelSidewalkAllPaths(i,label,true);
+                    if(newLabel != null){
+                        if(newLabel.node == inputdata.startNode){
+                            list.add(newLabel);
+                        }
+                        if(true){
+                            unprocessed.add(newLabel);
+                        }
+                    }
+                }
+            }
+            processed.add(label);
+
+        }
+        return list;
+    }
+
+    public Label ExtendLabelSidewalkAllPaths(int node, Label L, boolean deadhead){
+        Label L2 = new Label();
+        L2.node  = node;
+        L2.predecessor = L;
+        L2.vehicle = L.vehicle;
+        L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int i = 0; i < inputdata.antallNoder; i++){
+            L2.numberOfTimesPlowed[i] = L.numberOfTimesPlowed[i].clone();
+            L2.lastTimePlowedNode[i] = L.lastTimePlowedNode[i].clone();
+        }
+        if(!deadhead){
+            L2.arraivingTime = L.arraivingTime - inputdata.plowingtimeSidewalk[node][L.node];
+            //L2.cost = L.cost -(L.arraivingTime - L2.arraivingTime)*dualSigmaSidewalk[L2.vehicle.getNumber()]-dualAlphaSidewalk[node][L.node];
+            if(L.numberOfTimesPlowed[node][L.node] == 0){
+                L2.lastTimePlowedNode[node][L.node] = L2.arraivingTime;
+                //L2.cost = L2.cost - L2.arraivingTime*dualGammaSidewalk[L2.vehicle.getNumber()][node][L.node];
+            }
+            L2.numberOfTimesPlowed[node][L.node] = L.numberOfTimesPlowed[node][L.node] + 1;
+            if(L2.numberOfTimesPlowed[node][L.node] > inputdata.numberOfPlowJobsSidewalk[node][L.node]){
+                return null;}
+        }
+        if(deadhead){
+            L2.arraivingTime = L.arraivingTime - inputdata.deadheadingtimeSidewalk[node][L.node];
+            //L2.cost = L.cost -(L.arraivingTime - L2.arraivingTime)*dualSigmaSidewalk[L2.vehicle.getNumber()];
+        }
+        if(L2.arraivingTime < 0){
+            return null;
+        }
+        return L2;
+    }
 
 
 }
