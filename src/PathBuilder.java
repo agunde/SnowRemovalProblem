@@ -79,7 +79,7 @@ public class PathBuilder {
                     Label newLabelDeadheading = ExtendLabelLane(i, label, true);
                     if(newLabelDeadheading != null) {
                         if(newLabelDeadheading.node == inputdata.endNode && newLabelDeadheading.cost < 0){
-                            return label;
+                            return newLabelDeadheading;
                         }
                         if(checkDominanceLane(newLabelDeadheading, unprocessed, processed)){
                             unprocessed.add(newLabelDeadheading);
@@ -95,7 +95,7 @@ public class PathBuilder {
         return null;
     }
 
-    //fortsett her
+    
     public Label buildPathSidewalk(VehicleSidewalk vehicleSidewalk){
         Label L = new Label();
         L.node = inputdata.endNode;
@@ -131,7 +131,7 @@ public class PathBuilder {
                     Label newLabel = ExtendLabelSidewalk(i,label,true);
                     if(newLabel != null){
                         if(newLabel.node == inputdata.startNode && newLabel.cost < 0){
-                            return label;
+                            return newLabel;
                         }
                         if(checkDominanceSidewalk(newLabel, unprocessed, processed)){
                             unprocessed.add(newLabel);
@@ -151,6 +151,7 @@ public class PathBuilder {
         L2.node = node;
         L2.predecessor = L;
         L2.vehicle = L.vehicle;
+        L2.deadheading = deadhead;
         L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
         L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
         for (int i = 0; i < inputdata.antallNoder; i++){
@@ -184,6 +185,7 @@ public class PathBuilder {
         L2.node  = node;
         L2.predecessor = L;
         L2.vehicle = L.vehicle;
+        L2.deadheading = deadhead;
         L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
         L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
         for(int i = 0; i < inputdata.antallNoder; i++){
@@ -339,6 +341,7 @@ public class PathBuilder {
 
     //BEGYNN MED VIDERE KODE HER
     //GJØR ET FORSØK PÅ Å GENERERE ALLE PATHS
+    //KODEN NEDENFOR SKAL FJERNES, ER BARE MIDELERTIDIG
 
      public ArrayList<Label> generateAllPathsLane(VehicleLane vehicleLane){
         ArrayList<Label>  list = new ArrayList<>();
@@ -391,10 +394,68 @@ public class PathBuilder {
 
      }
 
+    public ArrayList<Label> generateFivePathsLane(VehicleLane vehicleLane){
+         int counter = 0;
+        ArrayList<Label>  list = new ArrayList<>();
+        Label L = new Label();
+        L.node = inputdata.startNode;
+        L.vehicle = vehicleLane;
+        L.arraivingTime = 0;
+        //L.cost = -dualBetaLane[L.vehicle.getNumber()];
+        L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for( int[] row : L.lastTimePlowedNode){
+            Arrays.fill(row,0);
+        }
+        L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int[] row: L.numberOfTimesPlowed){
+            Arrays.fill(row,0);
+        }
+        ArrayList<Label> unprocessed = new ArrayList<>();
+        ArrayList<Label> processed = new ArrayList<>();
+        unprocessed.add(L);
+
+        while(!unprocessed.isEmpty()){
+            Label label = unprocessed.remove(0);
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                if(inputdata.deadheadingtimeLane[label.node][i] != -1){
+                    if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
+                        Label newLabelPlow = ExtendLabelLaneAllPaths(i, label, false);
+                        if(newLabelPlow != null) {
+                            if(true){
+                                unprocessed.add(newLabelPlow);
+                            }
+                        }
+
+                    }
+
+                    Label newLabelDeadheading = ExtendLabelLaneAllPaths(i, label, true);
+                    if(newLabelDeadheading != null) {
+                        if(newLabelDeadheading.node == inputdata.endNode){
+                            list.add(newLabelDeadheading);
+                            counter += 1;
+                            if(counter >= 3){
+                                break;
+                            }
+                        }
+                        unprocessed.add(newLabelDeadheading);
+                    }
+                }
+
+            }
+            processed.add(label);
+
+
+        }
+        return list;
+
+    }
+
+
     public Label ExtendLabelLaneAllPaths(int node, Label L, boolean deadhead) {
         Label L2 = new Label();
         L2.node = node;
         L2.predecessor = L;
+        L2.deadheading = deadhead;
         L2.vehicle = L.vehicle;
         L2.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
         L2.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
@@ -461,6 +522,61 @@ public class PathBuilder {
                     if(newLabel != null){
                         if(newLabel.node == inputdata.startNode){
                             list.add(newLabel);
+                        }
+                        if(true){
+                            unprocessed.add(newLabel);
+                        }
+                    }
+                }
+            }
+            processed.add(label);
+
+        }
+        return list;
+    }
+
+    public ArrayList<Label> generateFivePathsSidewalk(VehicleSidewalk vehicleSidewalk){
+        int counter = 0;
+        ArrayList<Label> list = new ArrayList<>();
+        Label L = new Label();
+        L.node = inputdata.endNode;
+        L.vehicle = vehicleSidewalk;
+        L.arraivingTime = inputdata.maxTime;
+        //L.cost = -dualBetaSidewalk[L.vehicle.getNumber()];
+        L.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int[] row : L.lastTimePlowedNode){
+            Arrays.fill(row,inputdata.maxTime);
+        }
+
+        L.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for(int[] row : L.numberOfTimesPlowed){
+            Arrays.fill(row,0);
+        }
+
+        ArrayList<Label> unprocessed = new ArrayList<>();
+        ArrayList<Label> processed = new ArrayList<>();
+        unprocessed.add(L);
+
+        while(!unprocessed.isEmpty()){
+            Label label = unprocessed.remove(0);
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                if(inputdata.deadheadingtimeSidewalk[i][label.node] != -1){
+                    if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
+                        Label newLabel = ExtendLabelSidewalkAllPaths(i, label, false);
+                        if(newLabel != null){
+                            if(true){
+                                unprocessed.add(newLabel);
+                            }
+                        }
+                    }
+                    Label newLabel = ExtendLabelSidewalkAllPaths(i,label,true);
+                    if(newLabel != null){
+                        if(newLabel.node == inputdata.startNode){
+                            list.add(newLabel);
+                            counter += 1;
+                            if(counter >=3){
+                                break;
+                            }
                         }
                         if(true){
                             unprocessed.add(newLabel);

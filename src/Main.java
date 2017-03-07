@@ -22,4 +22,5 @@ public class Main {
 
 // What to do:
 //Fikse kode for å håndtere input
-//Lag initsielle label
+//Lag en heltallsløsning
+//Lag en bedre printSolution()

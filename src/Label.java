@@ -14,8 +14,9 @@ public class Label {
     public double cost;
     public int[][] lastTimePlowedNode;
     public int[][] numberOfTimesPlowed;
+    public boolean deadheading;
 
-    public ArrayList<Integer> getRoute() {
+    public ArrayList<Integer> getRouteLane() {
         ArrayList<Integer> list = new ArrayList<>();
         list.add(node);
         Label temp = predecessor;
@@ -25,6 +26,71 @@ public class Label {
         }
         Collections.reverse(list);
         return list;
+    }
+
+    public ArrayList<Boolean> getPlowListLane() {
+        ArrayList<Boolean> list = new ArrayList<>();
+        list.add(deadheading);
+        Label temp = predecessor;
+        while(temp!=null){
+            list.add(temp.deadheading);
+            temp = temp.predecessor;
+        }
+        Collections.reverse(list);
+        return list;
+    }
+
+    public ArrayList<Integer> getRouteSidewalk() {
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(node);
+        Label temp = predecessor;
+        while(temp!=null){
+            list.add(temp.node);
+            temp = temp.predecessor;
+        }
+        return list;
+    }
+
+    public ArrayList<Boolean> getPlowListSidewalk() {
+        ArrayList<Boolean> list = new ArrayList<>();
+        list.add(deadheading);
+        Label temp = predecessor;
+        while(temp!=null){
+            list.add(temp.deadheading);
+            temp = temp.predecessor;
+        }
+        return list;
+    }
+
+    public String toString(){
+        String string="";
+        if(vehicle instanceof VehicleLane){
+            string += "Vehicle lane nr " + vehicle.getNumber() + " Time used "+arraivingTime;
+            ArrayList<Integer> route = getRouteLane();
+            ArrayList<Boolean> plow = getPlowListLane();
+            for (int i = 0; i < route.size(); i++){
+                if(plow.get(i) == true){
+                    string += " deadhead to "+ (route.get(i)+1);
+                }
+                else{
+                    string += " plow to " + (route.get(i)+1);
+                }
+            }
+        }
+        else if(vehicle instanceof VehicleSidewalk){
+            string += "Vehicle sidewalk nr " + vehicle.getNumber()+ " Time used "+arraivingTime;
+            ArrayList<Integer> route = getRouteSidewalk();
+            ArrayList<Boolean> plow = getPlowListSidewalk();
+            for (int i = 0; i < route.size(); i++){
+                if(plow.get(i) == true){
+                    string += " deadhead to "+ (route.get(i)+1);
+                }
+                else{
+                    string += " plow to " + (route.get(i)+1);
+                }
+            }
+        }
+        return string;
     }
 
 

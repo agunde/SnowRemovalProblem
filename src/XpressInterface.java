@@ -61,19 +61,22 @@ public class XpressInterface {
         this.pathList = new Hashtable<Integer, Label>();
         this.filewriter = new Filewriter("output.txt");
         buildProblem();
-        //solveProblem();
-        solveProblemAllPaths();
+        solveProblem();
+        //solveProblemAllPaths();
     }
 
     private void buildProblem() {
         this.problem = xprb.newProb("problem 1");
-        problem.setCutMode(1);
+        /*problem.setCutMode(1);*/
+
         //this.problem.setXPRSdblControl(XPRS.OPTIMALITYTOL, 0.00000000001);
 //		this.problem.setXPRSintControl(XOctrl.XPRS_PRESOLVE, 0);
-        this.problem.setXPRSintControl(XOctrl.XPRS_OUTPUTLOG, 1);
+
+        /*this.problem.setXPRSintControl(XOctrl.XPRS_OUTPUTLOG, 1);
         this.problem.setXPRSintControl(XOctrl.XPRS_MIPLOG, -100);
-        this.problem.setXPRSintControl(XOctrl.XPRS_CUTSTRATEGY,0);
-//		this.problem.setXPRSintControl(XOctrl.XPRS_MAXTIME,-1000);
+        this.problem.setXPRSintControl(XOctrl.XPRS_CUTSTRATEGY,0);*/
+//
+// this.problem.setXPRSintControl(XOctrl.XPRS_MAXTIME,-1000);
 //		this.problem.setXPRSintControl(XOctrl.XPRS_HEURSTRATEGY, 3);
 //		this.problem.getXPRSprob().setIntControl(XPRS.HEURSTRATEGY, 3);
 //		this.problem.getXPRSprob().setIntControl(XPRS.HEURSEARCHTREESELECT, 1100);
@@ -136,6 +139,7 @@ public class XpressInterface {
 
         for(int k = 0; k < vehicleLane.size(); k++){
             this.chooseRouteLaneCons[k] = problem.newCtr("Choose route lane con");
+            //Endre til equal
             this.chooseRouteLaneCons[k].setType(XPRB.E);
             this.chooseRouteLaneCons[k].add(1);
 
@@ -147,6 +151,7 @@ public class XpressInterface {
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             this.chooseRouteSidewalkCons[k] = problem.newCtr("Choose route sidewalk con");
+            //Endre til equal
             this.chooseRouteSidewalkCons[k].setType(XPRB.E);
             this.chooseRouteSidewalkCons[k].add(1);
 
@@ -194,11 +199,13 @@ public class XpressInterface {
     }
 //Oppdatere dualveridiene her
     private void solveProblem(){
-        //Lagt til en midlertidig metode
+        //Lagt til en midlertidig metode og counter
+        int counter = 0;
         generateInitialPaths();
         //Midlertidig metode slutt
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
+            counter +=1;
             boolean tempBoolean = false;
             solveMasterProblem();
             for(VehicleLane v: vehicleLane) {
@@ -219,13 +226,17 @@ public class XpressInterface {
                 optimalSolutionFound = true;
             }
         }
+        System.out.println("Antall ganger solveMaster() blir kalt "+counter);
+        printSolution();
     }
 
     private void solveMasterProblem(){
         problem.setObj(this.objective);
         problem.setSense(XPRB.MINIM);
-        problem.sync(XPRB.XPRS_PROB);
-        problem.solve("g");
+        //problem.sync(XPRB.XPRS_PROB);
+
+        //n er LP, g er MIP
+        problem.solve("n");
 
         double[] dualBetaSidewalk = new double[this.vehicleSidewalk.size()];
         double[] dualBetaLane = new double[this.vehicleLane.size()];
@@ -240,24 +251,29 @@ public class XpressInterface {
             for(int j = 0; j < inputdata.antallNoder; j++){
                 if(inputdata.plowingtimeLane[i][j] > 0){
                     dualAlphaLane[i][j] = allLanesPlowedCons[i][j].getDual();
+                    //System.out.println("Alpha lane "+allLanesPlowedCons[i][j].getDual()+" is valid "+allLanesPlowedCons[i][j].isValid());
                 }
                 if(inputdata.plowingtimeSidewalk[i][j] > 0){
                     dualAlphaSidewalk[i][j] = allSidewalksPlowedCons[i][j].getDual();
+                    //System.out.println("Alpha sidewalk "+allSidewalksPlowedCons[i][j].getDual()+" is valid "+allSidewalksPlowedCons[i][j].isValid());
                 }
             }
         }
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             dualBetaSidewalk[k] = chooseRouteSidewalkCons[k].getDual();
+            //System.out.println("Beta sidewalk "+chooseRouteSidewalkCons[k].getDual()+" is valid "+chooseRouteSidewalkCons[k].isValid());
 
 
             dualSigmaSidewalk[k] = maxWaitTimeCons[k].getDual();
+            //System.out.println("Sigma sidewalk "+maxWaitTimeCons[k].getDual());
 
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         dualGammaSidewalk[k][i][j] = precedenceSidewalkCons[k][i][j].getDual();
+                        //System.out.println("Gamma sidewalk "+precedenceSidewalkCons[k][i][j].getDual());
                     }
                 }
             }
@@ -266,13 +282,16 @@ public class XpressInterface {
 
         for(int k = 0; k < vehicleLane.size(); k++){
             dualBetaLane[k] = chooseRouteLaneCons[k].getDual();
+            //System.out.println("Beta lane "+chooseRouteLaneCons[k].getDual());
 
             dualSigmaLane[k] = makespanLaneCons[k].getDual();
+            //System.out.println("Sigma lane "+makespanLaneCons[k].getDual());
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
                         dualGammaLane[k][i][j] = precedenceLaneCons[k][i][j].getDual();
+                        //System.out.println("Gamma lane "+makespanLaneCons[k].getDual());
                     }
                 }
             }
@@ -292,7 +311,8 @@ public class XpressInterface {
 
 
     private void addLabelToMaster(Label label, boolean LaneVehicle){
-        XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.BV,0,XPRB.INFINITY);
+        //gjør binær med BV, kontinuerlig med PL
+        XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.PL,0,XPRB.INFINITY);
 
         if(LaneVehicle == true){
             routeVariables.add(lambdaVar);
@@ -333,6 +353,37 @@ public class XpressInterface {
 
     }
 
+    private void printSolution() {
+        for(int i = 0; i < routeVariables.size(); i++){
+            if(routeVariables.get(i).getSol() >0.1){
+                System.out.println(routeVariables.get(i).getSol()+" "+pathList.get(i).toString());
+            }
+        }
+
+        for (int i = 0; i < inputdata.antallNoder; i++){
+            for(int j = 0; j < inputdata.antallNoder; j++){
+                if(inputdata.numberOfPlowJobsLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0 ){
+                    System.out.println("Precedence:");
+                    String string = "";
+                    for(int r = 0; r < routeVariables.size(); r++){
+                        if(routeVariables.get(r).getSol() > 0.1){
+                            Label temp = pathList.get(r);
+                            if(temp.vehicle instanceof VehicleLane){
+                                string += " Lane time "+temp.lastTimePlowedNode[i][j];
+                            }
+                            else{
+                                string += " Sidewalk time "+temp.lastTimePlowedNode[i][j];
+                            }
+                        }
+                    }
+                    System.out.println(string);
+                }
+            }
+        }
+        System.out.println("Makespan: "+problem.getObjVal());
+
+    }
+
     //Midlertidig metode
     private void generateInitialPaths(){
         //lag tre nye labels her
@@ -356,6 +407,14 @@ public class XpressInterface {
                 {0,0,0,0,0,0}};
         label1.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
 
+        Label label1vol2 = new Label();
+        label1vol2.node = 5;
+        label1vol2.vehicle = vehicleLane.get(1);
+        label1vol2.arraivingTime = 14;
+        label1vol2.cost = 0;
+        label1vol2.lastTimePlowedNode = lastTimePlowedNodeLabel1;
+        label1vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
+
         Label label2 = new Label();
         label2.node = 5;
         label2.vehicle = vehicleLane.get(1);
@@ -375,6 +434,14 @@ public class XpressInterface {
                 {0,1,0,1,0,0},
                 {0,0,0,0,0,0}};
         label2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
+
+        Label label2vol2 = new Label();
+        label2vol2.node = 5;
+        label2vol2.vehicle = vehicleLane.get(0);
+        label2vol2.arraivingTime = 14;
+        label2vol2.cost = 0;
+        label2vol2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
+        label2vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
 
         Label label3 = new Label();
         label3.node = 0;
@@ -396,30 +463,22 @@ public class XpressInterface {
                 {0,0,0,0,0,0}};
         label3.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
 
-        /*Label label4 = new Label();
-        label4.node = 5;
-        label4.vehicle = vehicleSidewalk.get(1);
-        label4.arraivingTime = 28;
-        label4.cost = 0;
-        int[][] lastTimePlowedNodeLabel4 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,22,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
-        label4.lastTimePlowedNode = lastTimePlowedNodeLabel4;
-        int[][] numberOfTimesPlowedLabel4 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,1,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
-        label4.numberOfTimesPlowed = numberOfTimesPlowedLabel4;*/
+        Label label3vol2 = new Label();
+        label3vol2.node = 0;
+        label3vol2.vehicle = vehicleSidewalk.get(1);
+        label3vol2.arraivingTime = 2;
+        label3vol2.cost = 0;
+        label3vol2.lastTimePlowedNode = lastTimePlowedNodeLabel3;
+        label3vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
+
 
         addLabelToMaster(label1,true);
         addLabelToMaster(label2,true);
         addLabelToMaster(label3,false);
-        //addLabelToMaster(label4,false);
+        addLabelToMaster(label1vol2,true);
+        addLabelToMaster(label2vol2,true);
+        addLabelToMaster(label3vol2,false);
+
     }
 
     private void solveProblemAllPaths(){
@@ -427,18 +486,21 @@ public class XpressInterface {
         //generateInitialPaths();
         //Midlertidig metode slutt
         for(VehicleLane v : vehicleLane){
-            ArrayList<Label> labels = builder.generateAllPathsLane(v);
+            //ArrayList<Label> labels = builder.generateAllPathsLane(v);
+            ArrayList<Label> labels = builder.generateFivePathsLane(v);
             for(Label l : labels){
                 addLabelToMaster(l,true);
             }
         }
         for(VehicleSidewalk v: vehicleSidewalk){
-            ArrayList<Label> labels = builder.generateAllPathsSidewalk(v);
+            //ArrayList<Label> labels = builder.generateAllPathsSidewalk(v);
+            ArrayList<Label> labels = builder.generateFivePathsSidewalk(v);
             for(Label l : labels){
                 addLabelToMaster(l,false);
             }
         }
         solveMasterProblem();
+        printSolution();
 
     }
 
