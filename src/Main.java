@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args){
         ArrayList<VehicleLane> vehicleLane = new ArrayList<>();
         ArrayList<VehicleSidewalk> vehicleSidewalk = new ArrayList<>();
-        String testdata = "TestCaseOriginal.txt";
+        String testdata = "TestCases/TestCase02.txt";
 
         String instance = "TestSet.txt";
         InstanceData inputdata = new InstanceData(instance);
@@ -24,3 +24,4 @@ public class Main {
 //Fikse kode for å håndtere input
 //Lag en heltallsløsning
 //Lag en bedre printSolution()
+//trenger ikke både numberOfPlowJobs og numberOfLanesOnArc

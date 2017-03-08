@@ -129,7 +129,7 @@ public class XpressInterface {
                     this.allLanesPlowedCons[i][j].add(inputdata.numberOfLanesOnArc[i][j]);
 
                 }
-                if(inputdata.plowingtimeSidewalk[i][j] > 0){
+                if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
                     this.allSidewalksPlowedCons[i][j] = problem.newCtr("Plowing demand sidewalks con");
                     this.allSidewalksPlowedCons[i][j].setType(XPRB.G);
                     this.allSidewalksPlowedCons[i][j].add(inputdata.numberofSidewalksOnArc[i][j]);
@@ -170,7 +170,7 @@ public class XpressInterface {
         for(int k = 0; k < vehicleLane.size(); k++){
             for(int i = 0; i <inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
                         this.precedenceLaneCons[k][i][j] = problem.newCtr("Precedence lane con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceLaneCons[k][i][j].add(0);
@@ -183,7 +183,7 @@ public class XpressInterface {
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
                         this.precedenceSidewalkCons[k][i][j] = problem.newCtr("Precedence sidewalk con");
                         this.precedenceSidewalkCons[k][i][j].setType(XPRB.L);
                         this.precedenceSidewalkCons[k][i][j].add(0);
@@ -253,7 +253,7 @@ public class XpressInterface {
                     dualAlphaLane[i][j] = allLanesPlowedCons[i][j].getDual();
                     //System.out.println("Alpha lane "+allLanesPlowedCons[i][j].getDual()+" is valid "+allLanesPlowedCons[i][j].isValid());
                 }
-                if(inputdata.plowingtimeSidewalk[i][j] > 0){
+                if(inputdata.numberofSidewalksOnArc[i][j] > 0){
                     dualAlphaSidewalk[i][j] = allSidewalksPlowedCons[i][j].getDual();
                     //System.out.println("Alpha sidewalk "+allSidewalksPlowedCons[i][j].getDual()+" is valid "+allSidewalksPlowedCons[i][j].isValid());
                 }
@@ -271,7 +271,7 @@ public class XpressInterface {
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
                         dualGammaSidewalk[k][i][j] = precedenceSidewalkCons[k][i][j].getDual();
                         //System.out.println("Gamma sidewalk "+precedenceSidewalkCons[k][i][j].getDual());
                     }
@@ -289,7 +289,7 @@ public class XpressInterface {
 
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.plowingtimeSidewalk[i][j] > 0){
+                    if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
                         dualGammaLane[k][i][j] = precedenceLaneCons[k][i][j].getDual();
                         //System.out.println("Gamma lane "+makespanLaneCons[k].getDual());
                     }
