@@ -26,6 +26,16 @@ public class XpressInterface {
     private XPRBvar makespanVariable;
     private XPRBvar[] waitVariable;
 
+    private XPRBvar[][] slackVariableAllLanePlowed;
+    private XPRBvar[][] slackVariableAllSidewalkPlowed;
+    private XPRBvar[] slackVariableChooseRouteLane;
+    private XPRBvar[] slackVariableChooseRouteSidewalk;
+    private XPRBvar[][][] slackVariablePrecedenceLane;
+    private XPRBvar[][][] slackVariablePrecedenceSidewalk;
+    private XPRBvar[] slackVariableMaxWaitTime;
+    private XPRBvar[] slackVariableMakespanLane;
+    private XPRBvar[] slackVariableMakespanSidewalk;
+
 
 
     //Constraints
@@ -90,8 +100,27 @@ public class XpressInterface {
         this.precedenceVariable = new XPRBvar[inputdata.antallNoder][inputdata.antallNoder];
         this.routeVariables = new  ArrayList<>();
 
+        this.slackVariableAllLanePlowed = new XPRBvar[inputdata.antallNoder][inputdata.antallNoder];
+        this.slackVariableAllSidewalkPlowed = new XPRBvar[inputdata.antallNoder][inputdata.antallNoder];
+        this.slackVariableChooseRouteLane = new XPRBvar[vehicleLane.size()];
+        this.slackVariableChooseRouteSidewalk = new XPRBvar[vehicleSidewalk.size()];
+        this.slackVariablePrecedenceLane = new XPRBvar[vehicleLane.size()][inputdata.antallNoder][inputdata.antallNoder];
+        this.slackVariablePrecedenceSidewalk = new XPRBvar[vehicleSidewalk.size()][inputdata.antallNoder][inputdata.antallNoder];
+        this.slackVariableMaxWaitTime = new XPRBvar[vehicleSidewalk.size()];
+        this.slackVariableMakespanLane = new XPRBvar[vehicleLane.size()];
+        this.slackVariableMakespanSidewalk = new XPRBvar[vehicleSidewalk.size()];
+
+
         for(int k = 0; k < vehicleSidewalk.size(); k++){
             this.waitVariable[k] = problem.newVar("waitVar "+k, XPRB.PL,0, XPRB.INFINITY);
+
+            this.slackVariableMakespanSidewalk[k] = problem.newVar("slack variable makespan sidewalk", XPRB.PL, 0, XPRB.INFINITY);
+            this.slackVariableMaxWaitTime[k] = problem.newVar("slack variable max wait time", XPRB.PL, 0, XPRB.INFINITY);
+            this.slackVariableChooseRouteSidewalk[k] = problem.newVar("slack variable choose route sidewalk", XPRB.PL, 0, XPRB.INFINITY);
+
+            this.objective.addTerm(this.slackVariableMakespanSidewalk[k],100);
+            this.objective.addTerm(this.slackVariableMaxWaitTime[k],100);
+            this.objective.addTerm(this.slackVariableChooseRouteSidewalk[k],100);
         }
 
         this.makespanVariable = problem.newVar("makespanVar", XPRB.PL,0,XPRB.INFINITY);
@@ -123,30 +152,44 @@ public class XpressInterface {
 
         for(int i = 0; i < inputdata.antallNoder; i++){
             for(int j = 0; j < inputdata.antallNoder; j++) {
-                if(inputdata.plowingtimeLane[i][j] > 0){
+                if(inputdata.numberOfPlowJobsLane[i][j] > 0){
+                    this.slackVariableAllLanePlowed[i][j] = problem.newVar("slack variable all lanes plowed", XPRB.PL, 0, XPRB.INFINITY);
+                    this.objective.addTerm(this.slackVariableAllLanePlowed[i][j],100);
+
                     this.allLanesPlowedCons[i][j] = problem.newCtr("Plowing demand lanes con");
                     this.allLanesPlowedCons[i][j].setType(XPRB.G);
                     this.allLanesPlowedCons[i][j].add(inputdata.numberOfLanesOnArc[i][j]);
+                    this.allLanesPlowedCons[i][j].addTerm(this.slackVariableAllLanePlowed[i][j],1);
 
                 }
                 if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                    this.slackVariableAllSidewalkPlowed[i][j] = problem.newVar("slack variable all sidewalks plowed", XPRB.PL, 0, XPRB.INFINITY);
+                    this.objective.addTerm(this.slackVariableAllSidewalkPlowed[i][j],100);
+
                     this.allSidewalksPlowedCons[i][j] = problem.newCtr("Plowing demand sidewalks con");
                     this.allSidewalksPlowedCons[i][j].setType(XPRB.G);
                     this.allSidewalksPlowedCons[i][j].add(inputdata.numberofSidewalksOnArc[i][j]);
+                    this.allSidewalksPlowedCons[i][j].addTerm(this.slackVariableAllSidewalkPlowed[i][j],1);
                 }
             }
         }
 
         for(int k = 0; k < vehicleLane.size(); k++){
+            this.slackVariableChooseRouteLane[k] = problem.newVar("slack variable choose route lane", XPRB.PL, 0, XPRB.INFINITY);
+            this.objective.addTerm(this.slackVariableChooseRouteLane[k],100);
+            this.slackVariableMakespanLane[k] = problem.newVar("slack variable makespan lane", XPRB.PL, 0, XPRB.INFINITY);
+            this.objective.addTerm(this.slackVariableMakespanLane[k],100);
+
             this.chooseRouteLaneCons[k] = problem.newCtr("Choose route lane con");
-            //Endre til equal
             this.chooseRouteLaneCons[k].setType(XPRB.E);
             this.chooseRouteLaneCons[k].add(1);
+            this.chooseRouteLaneCons[k].addTerm(this.slackVariableChooseRouteLane[k],1);
 
             this.makespanLaneCons[k] = problem.newCtr("Makespan lane con");
             this.makespanLaneCons[k].setType(XPRB.L);
             this.makespanLaneCons[k].add(0);
             this.makespanLaneCons[k].addTerm(this.makespanVariable,-1);
+            this.makespanLaneCons[k].addTerm(this.slackVariableMakespanLane[k],-1);
         }
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
@@ -154,27 +197,34 @@ public class XpressInterface {
             //Endre til equal
             this.chooseRouteSidewalkCons[k].setType(XPRB.E);
             this.chooseRouteSidewalkCons[k].add(1);
+            this.chooseRouteSidewalkCons[k].addTerm(this.slackVariableChooseRouteSidewalk[k],1);
 
             this.makespanSidewalkCons[k] = problem.newCtr("Makespan sidewalk con");
             this.makespanSidewalkCons[k].setType(XPRB.L);
             this.makespanSidewalkCons[k].add(-inputdata.maxTime);
             this.makespanSidewalkCons[k].addTerm(this.makespanVariable,-1);
             this.makespanSidewalkCons[k].addTerm(this.waitVariable[k],-1);
+            this.makespanSidewalkCons[k].addTerm(this.slackVariableMakespanSidewalk[k],-1);
 
             this.maxWaitTimeCons[k] = problem.newCtr("Max wait time cons");
             this.maxWaitTimeCons[k].setType(XPRB.L);
             this.maxWaitTimeCons[k].add(inputdata.maxTime);
             this.maxWaitTimeCons[k].addTerm(this.waitVariable[k], 1);
+            this.maxWaitTimeCons[k].addTerm(this.slackVariableMaxWaitTime[k],-1);
         }
 
         for(int k = 0; k < vehicleLane.size(); k++){
             for(int i = 0; i <inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                        this.slackVariablePrecedenceLane[k][i][j] = problem.newVar("slack variable precedence lane", XPRB.PL, 0, XPRB.INFINITY);
+                        this.objective.addTerm(this.slackVariablePrecedenceLane[k][i][j],100);
+
                         this.precedenceLaneCons[k][i][j] = problem.newCtr("Precedence lane con");
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceLaneCons[k][i][j].add(0);
                         this.precedenceLaneCons[k][i][j].addTerm(this.precedenceVariable[i][j],-1);
+                        this.precedenceLaneCons[k][i][j].addTerm(this.slackVariablePrecedenceLane[k][i][j],-1);
                     }
                 }
             }
@@ -184,15 +234,21 @@ public class XpressInterface {
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
                     if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                        this.slackVariablePrecedenceSidewalk[k][i][j] = problem.newVar("slack variable precedence sidewalk", XPRB.PL, 0, XPRB.INFINITY);
+                        this.objective.addTerm(this.slackVariablePrecedenceSidewalk[k][i][j],100);
+
                         this.precedenceSidewalkCons[k][i][j] = problem.newCtr("Precedence sidewalk con");
                         this.precedenceSidewalkCons[k][i][j].setType(XPRB.L);
                         this.precedenceSidewalkCons[k][i][j].add(0);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.precedenceVariable[i][j],1);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.waitVariable[k],1);
+                        this.precedenceSidewalkCons[k][i][j].addTerm(this.slackVariablePrecedenceSidewalk[k][i][j],-1);
                     }
                 }
             }
         }
+
+
 
 
 
@@ -201,7 +257,7 @@ public class XpressInterface {
     private void solveProblem(){
         //Lagt til en midlertidig metode og counter
         int counter = 0;
-        generateInitialPaths();
+        //generateInitialPaths();
         //Midlertidig metode slutt
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
@@ -209,16 +265,20 @@ public class XpressInterface {
             boolean tempBoolean = false;
             solveMasterProblem();
             for(VehicleLane v: vehicleLane) {
-                Label labelLane = builder.buildPathLane(v);
+                ArrayList<Label> labelLane = builder.buildPathLane(v);
                 if(labelLane != null){
-                    addLabelToMaster(labelLane, true);
+                    for(Label label : labelLane){
+                        addLabelToMaster(label, true);
+                    }
                     tempBoolean = true;
                 }
             }
             for(int v = 0; v < vehicleSidewalk.size(); v++) {
-                Label labelSidewalk = builder.buildPathSidewalk(vehicleSidewalk.get(v));
+                ArrayList<Label> labelSidewalk = builder.buildPathSidewalk(vehicleSidewalk.get(v));
                 if(labelSidewalk != null){
-                    addLabelToMaster(labelSidewalk, false);
+                    for(Label label : labelSidewalk){
+                        addLabelToMaster(label, false);
+                    }
                     tempBoolean = true;
                 }
             }

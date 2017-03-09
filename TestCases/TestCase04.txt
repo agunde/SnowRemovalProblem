@@ -6,30 +6,24 @@ nVehicleSidewalk:2
 startNodeLane: 1
 endNodeLane: 13
 
-startNodeSidewalk: 1
-endNodeSidewalk: 13
-
 nLegsRoute: 17
-maxTime: 90
+maxTime: 75
 
-!A lot of values should have been 0, but since the model checks if it is an arc between two nodes 
-!a lot of values were set to an equal value, in order to make the matrix fast
 NumberOfLanesOnArc:[
-1	0	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	0
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
+-1	0	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
+-1	-1	1	-1	-1	1	-1	-1	-1	1	-1	-1	0
+-1	1	-1	-1	1	-1	-1	-1	-1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
+-1	-1	1	-1	-1	1	-1	-1	-1	-1	1	-1	-1
+-1	1	-1	-1	1	-1	1	1	-1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	1	-1	1	-1	-1	1	-1	-1
+-1	-1	-1	-1	-1	1	1	-1	1	1	-1	1	-1
+-1	-1	-1	-1	-1	-1	-1	1	-1	1	-1	1	-1
+-1	1	-1	-1	-1	-1	-1	1	1	-1	-1	-1	-1
+-1	-1	-1	-1	1	-1	1	-1	-1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	-1	-1	1	1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
 ]
-
 
 DistanceLane : [
 -1	0	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
@@ -47,23 +41,20 @@ DistanceLane : [
 -1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
 ]
 
-
-!A lot of values should have been 0, but since the model checks if it is an arc between two nodes 
-!a lot of values were set to an equal value, in order to make the matrix fast
 NumberOfSidewalksOnArc:[
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
-1	1	1	1	1	1	1	1	1	1	1	1	1
+0	0	0	0	0	0	0	0	0	0	0	0	0
+0	0	1	0	0	1	0	0	0	0	0	0	0
+0	1	0	1	0	0	0	0	0	0	0	0	0
+0	0	1	0	0	0	0	0	0	0	0	0	0
+0	0	0	0	0	1	0	0	0	0	1	0	0
+0	1	0	0	0	0	0	1	0	0	0	0	0
+0	0	0	0	0	0	0	0	0	0	1	0	0
+0	0	0	0	0	1	0	0	0	1	0	0	0
+0	0	0	0	0	0	0	0	0	1	0	0	0
+0	0	0	0	0	0	0	0	1	0	0	0	0
+0	0	0	0	1	0	1	0	0	0	0	0	0
+0	0	0	0	0	0	0	0	0	0	0	0	0
+0	0	0	0	0	0	0	0	0	0	0	0	0
 ]
 
 DistanceSidewalk : [

@@ -193,7 +193,8 @@ public class InputReader {
                 System.out.println(line);
                 line = line.trim();
                 System.out.println(line);
-                list1 = line.split(",");
+                list1 = line.split("\\t+");
+                System.out.println("A"+list1[0]);
                 for(int j = 0; j < inputdata.antallNoder;j++){
                     inputdata.numberOfLanesOnArc[i][j] = Integer.parseInt(list1[j].trim());
                     inputdata.numberOfPlowJobsLane[i][j] = Integer.parseInt(list1[j].trim());
@@ -208,7 +209,7 @@ public class InputReader {
                 System.out.println(line);
                 line = line.trim();
                 System.out.println(line);
-                list1 = line.split(",");
+                list1 = line.split("\\t+");
                 for(int j = 0; j < inputdata.antallNoder;j++){
                     inputdata.plowingtimeLane[i][j] = Integer.parseInt(list1[j].trim());
                     inputdata.deadheadingtimeLane[i][j] = Integer.parseInt(list1[j].trim());
@@ -223,7 +224,7 @@ public class InputReader {
                 System.out.println(line);
                 line = line.trim();
                 System.out.println(line);
-                list1 = line.split(",");
+                list1 = line.split("\\t+");
                 for(int j = 0; j < inputdata.antallNoder;j++){
                     inputdata.numberOfPlowJobsSidewalk[i][j] = Integer.parseInt(list1[j].trim());
                     inputdata.numberofSidewalksOnArc[i][j] = Integer.parseInt(list1[j].trim());
@@ -238,7 +239,7 @@ public class InputReader {
                 System.out.println(line);
                 line = line.trim();
                 System.out.println(line);
-                list1 = line.split(",");
+                list1 = line.split("\\t+");
                 for(int j = 0; j < inputdata.antallNoder;j++){
                     inputdata.plowingtimeSidewalk[i][j] = Integer.parseInt(list1[j].trim());
                 }
@@ -252,7 +253,7 @@ public class InputReader {
                 System.out.println(line);
                 line = line.trim();
                 System.out.println(line);
-                list1 = line.split(",");
+                list1 = line.split("\\t+");
                 for(int j = 0; j < inputdata.antallNoder;j++){
                     inputdata.deadheadingtimeSidewalk[i][j] = Integer.parseInt(list1[j].trim());
                 }
