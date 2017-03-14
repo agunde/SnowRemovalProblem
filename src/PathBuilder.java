@@ -35,7 +35,7 @@ public class PathBuilder {
         this.dualSigmaLane = new double[this.vehicleLane.size()];
     }
 
-    public ArrayList<Label> buildPathLane(VehicleLane vehicleLane) {
+    public ArrayList<Label> buildPathLane(VehicleLane vehicleLane, int numberOfPaths) {
         Label L = new Label();
         L.node = inputdata.startNode;
         L.vehicle = vehicleLane;
@@ -63,7 +63,36 @@ public class PathBuilder {
 
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
-            for(int i = 0; i < inputdata.antallNoder; i++){
+            for(Integer i : inputdata.deadheadingNeighborLane.get(label.node)){
+                if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
+                    Label newLabelPlow = ExtendLabelLane(i, label, false);
+                    if(newLabelPlow != null) {
+                        if(checkDominanceLane(newLabelPlow, unprocessed,unprocessedNode.get(newLabelPlow.node))){
+                            unprocessed.add(newLabelPlow);
+                            ArrayList<Label> tempList = unprocessedNode.get(newLabelPlow.node);
+                            tempList.add(newLabelPlow);
+                        }
+                    }
+
+                }
+                Label newLabelDeadheading = ExtendLabelLane(i, label, true);
+                if(newLabelDeadheading != null) {
+                    if(newLabelDeadheading.node == inputdata.endNode && newLabelDeadheading.cost < 0){
+                        improvingLabels.add(newLabelDeadheading);
+                        if(improvingLabels.size()>numberOfPaths){
+                            return improvingLabels;
+                        }
+
+                    }
+                    if(checkDominanceLane(newLabelDeadheading, unprocessed, unprocessedNode.get(newLabelDeadheading.node))){
+                        unprocessed.add(newLabelDeadheading);
+                        ArrayList<Label> tempList = unprocessedNode.get(newLabelDeadheading.node);
+                        tempList.add(newLabelDeadheading);
+                    }
+                }
+            }
+
+            /*for(int i = 0; i < inputdata.antallNoder; i++){
                 if(inputdata.deadheadingtimeLane[label.node][i] != -1){
                     if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
                         Label newLabelPlow = ExtendLabelLane(i, label, false);
@@ -94,7 +123,8 @@ public class PathBuilder {
                     }
                 }
 
-            }
+            }*/
+
             processed.add(label);
 
 
@@ -106,7 +136,7 @@ public class PathBuilder {
     }
 
 
-    public ArrayList<Label> buildPathSidewalk(VehicleSidewalk vehicleSidewalk){
+    public ArrayList<Label> buildPathSidewalk(VehicleSidewalk vehicleSidewalk, int numberOfPaths){
         Label L = new Label();
         L.node = inputdata.endNode;
         L.vehicle = vehicleSidewalk;
@@ -134,7 +164,35 @@ public class PathBuilder {
 
         while(!unprocessed.isEmpty()){
             Label label = unprocessed.remove(0);
-            for(int i = 0; i < inputdata.antallNoder; i++){
+            for(Integer i : inputdata.deadheadingNeighborSidewalkReversed.get(label.node)){
+                if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
+                    Label newLabelPlow = ExtendLabelSidewalk(i, label, false);
+                    if(newLabelPlow != null){
+                        if(checkDominanceSidewalk(newLabelPlow, unprocessed,unprocessedNode.get(newLabelPlow.node))){
+                            unprocessed.add(newLabelPlow);
+                            ArrayList<Label> tempList = unprocessedNode.get(newLabelPlow.node);
+                            tempList.add(newLabelPlow);
+                        }
+                    }
+                }
+                Label newLabel = ExtendLabelSidewalk(i,label,true);
+                if(newLabel != null){
+                    if(newLabel.node == inputdata.startNode && newLabel.cost < 0){
+                        improvingLabels.add(newLabel);
+                        if (improvingLabels.size() > numberOfPaths){
+                            return improvingLabels;
+                        }
+                    }
+                    if(checkDominanceSidewalk(newLabel, unprocessed, unprocessedNode.get(newLabel.node))){
+                        unprocessed.add(newLabel);
+                        ArrayList<Label> tempList = unprocessedNode.get(newLabel.node);
+                        tempList.add(newLabel);
+                    }
+                }
+
+            }
+
+            /*for(int i = 0; i < inputdata.antallNoder; i++){
                 if(inputdata.deadheadingtimeSidewalk[i][label.node] != -1){
                     if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
                         Label newLabelPlow = ExtendLabelSidewalk(i, label, false);
@@ -161,7 +219,7 @@ public class PathBuilder {
                         }
                     }
                 }
-            }
+            }*/
             processed.add(label);
 
         }

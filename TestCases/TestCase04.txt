@@ -1,7 +1,7 @@
 nNodes: 13
 
-nVehicleLane:3
-nVehicleSidewalk:2
+nVehicleLane: 3
+nVehicleSidewalk: 2
 
 startNodeLane: 1
 endNodeLane: 13

@@ -152,6 +152,7 @@ public class InputReader {
             inputdata.deadheadingtimeSidewalk = tempArray7;
             inputdata.deadheadingtimeLane = tempArray8;
 
+
             fr.readLine();
             line = fr.readLine();
             list1 = line.split(":");
@@ -259,12 +260,29 @@ public class InputReader {
                 }
             }
 
-            System.out.println();
-            System.out.println();
+            for (int i = 0; i <inputdata.antallNoder; i++){
+                inputdata.deadheadingNeighborLane.put(i,new ArrayList<>());
+                inputdata.deadheadingNeighborSidewalkReversed.put(i,new ArrayList<>());
+                inputdata.plowingNeighborLane.put(i,new ArrayList<>());
+                inputdata.plowingNeighborSidewalkReversed.put(i,new ArrayList<>());
+            }
+
             for(int i = 0; i < inputdata.antallNoder; i++){
                 for(int j = 0; j < inputdata.antallNoder; j++){
-                    System.out.println(inputdata.numberOfLanesOnArc[i][j]);
+                    if(inputdata.deadheadingtimeLane[i][j] != -1){
+                        inputdata.deadheadingNeighborLane.get(i).add(j);
+                    }
+                    if(inputdata.deadheadingtimeSidewalk[i][j] != -1){
+                        inputdata.deadheadingNeighborSidewalkReversed.get(j).add(i);
+                    }
+                    if(inputdata.numberOfPlowJobsLane[i][j] > 0){
+                        inputdata.plowingNeighborLane.get(i).add(j);
+                    }
+                    if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                        inputdata.plowingNeighborSidewalkReversed.get(j).add(i);
+                    }
                 }
+
             }
 
 
