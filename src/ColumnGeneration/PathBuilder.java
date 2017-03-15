@@ -52,8 +52,10 @@ public class PathBuilder {
         }*/
         ArrayList<Label> unprocessed = new ArrayList<>();
         Hashtable<Integer, ArrayList<Label>> unprocessedNode = new Hashtable<>();
+        Hashtable<Integer, ArrayList<Label>> processedNode = new Hashtable<>();
         for (int i = 0; i < inputdata.antallNoder; i++){
             unprocessedNode.put(i, new ArrayList<>());
+            processedNode.put(i, new ArrayList<>());
         }
 
         ArrayList<Label> processed = new ArrayList<>();
@@ -61,13 +63,13 @@ public class PathBuilder {
         unprocessedNode.get(L.node).add(L);
         ArrayList<Label> improvingLabels = new ArrayList<>();
 
-        while(!unprocessed.isEmpty()){
+        while(!unprocessed.isEmpty()) {
             Label label = unprocessed.remove(0);
-            for(Integer i : inputdata.deadheadingNeighborLane.get(label.node)){
-                if(inputdata.numberOfPlowJobsLane[label.node][i] > 0){
+            for (Integer i : inputdata.deadheadingNeighborLane.get(label.node)) {
+                if (inputdata.numberOfPlowJobsLane[label.node][i] > 0) {
                     Label newLabelPlow = ExtendLabelLane(i, label, false);
-                    if(newLabelPlow != null) {
-                        if(checkDominanceLane(newLabelPlow, unprocessed,unprocessedNode.get(newLabelPlow.node))){
+                    if (newLabelPlow != null) {
+                        if (checkDominanceLane(newLabelPlow, unprocessed, unprocessedNode.get(newLabelPlow.node), processed, processedNode.get(newLabelPlow.node))) {
                             unprocessed.add(newLabelPlow);
                             ArrayList<Label> tempList = unprocessedNode.get(newLabelPlow.node);
                             tempList.add(newLabelPlow);
@@ -76,15 +78,14 @@ public class PathBuilder {
 
                 }
                 Label newLabelDeadheading = ExtendLabelLane(i, label, true);
-                if(newLabelDeadheading != null) {
-                    if(newLabelDeadheading.node == inputdata.endNode && newLabelDeadheading.cost < 0){
+                if (newLabelDeadheading != null) {
+                    /*if(newLabelDeadheading.node == inputdata.endNode && newLabelDeadheading.cost < 0){
                         improvingLabels.add(newLabelDeadheading);
                         if(improvingLabels.size()>numberOfPaths){
                             return improvingLabels;
                         }
-
-                    }
-                    if(checkDominanceLane(newLabelDeadheading, unprocessed, unprocessedNode.get(newLabelDeadheading.node))){
+                    }*/
+                    if (checkDominanceLane(newLabelDeadheading, unprocessed, unprocessedNode.get(newLabelDeadheading.node), processed, processedNode.get(newLabelDeadheading.node))) {
                         unprocessed.add(newLabelDeadheading);
                         ArrayList<Label> tempList = unprocessedNode.get(newLabelDeadheading.node);
                         tempList.add(newLabelDeadheading);
@@ -126,9 +127,16 @@ public class PathBuilder {
             }*/
 
             processed.add(label);
-
-
+            processedNode.get(label.node).add(label);
         }
+
+        for(Label label : processedNode.get(inputdata.endNode)){
+            if(label.cost < 0){
+                improvingLabels.add(label);
+            }
+        }
+
+
         if(improvingLabels.size() >0){
             return improvingLabels;
         }
@@ -154,8 +162,10 @@ public class PathBuilder {
 
         ArrayList<Label> unprocessed = new ArrayList<>();
         Hashtable<Integer, ArrayList<Label>> unprocessedNode = new Hashtable<>();
+        Hashtable<Integer, ArrayList<Label>> processedNode = new Hashtable<>();
         for (int i = 0; i < inputdata.antallNoder; i++){
             unprocessedNode.put(i, new ArrayList<>());
+            processedNode.put(i, new ArrayList<>());
         }
         ArrayList<Label> processed = new ArrayList<>();
         unprocessed.add(L);
@@ -168,7 +178,7 @@ public class PathBuilder {
                 if(inputdata.numberOfPlowJobsSidewalk[i][label.node] > 0){
                     Label newLabelPlow = ExtendLabelSidewalk(i, label, false);
                     if(newLabelPlow != null){
-                        if(checkDominanceSidewalk(newLabelPlow, unprocessed,unprocessedNode.get(newLabelPlow.node))){
+                        if(checkDominanceSidewalk(newLabelPlow, unprocessed,unprocessedNode.get(newLabelPlow.node), processed, processedNode.get(newLabelPlow.node))){
                             unprocessed.add(newLabelPlow);
                             ArrayList<Label> tempList = unprocessedNode.get(newLabelPlow.node);
                             tempList.add(newLabelPlow);
@@ -177,13 +187,13 @@ public class PathBuilder {
                 }
                 Label newLabel = ExtendLabelSidewalk(i,label,true);
                 if(newLabel != null){
-                    if(newLabel.node == inputdata.startNode && newLabel.cost < 0){
+                    /*if(newLabel.node == inputdata.startNode && newLabel.cost < 0){
                         improvingLabels.add(newLabel);
                         if (improvingLabels.size() > numberOfPaths){
                             return improvingLabels;
                         }
-                    }
-                    if(checkDominanceSidewalk(newLabel, unprocessed, unprocessedNode.get(newLabel.node))){
+                    }*/
+                    if(checkDominanceSidewalk(newLabel, unprocessed, unprocessedNode.get(newLabel.node), processed, processedNode.get(newLabel.node))){
                         unprocessed.add(newLabel);
                         ArrayList<Label> tempList = unprocessedNode.get(newLabel.node);
                         tempList.add(newLabel);
@@ -221,7 +231,14 @@ public class PathBuilder {
                 }
             }*/
             processed.add(label);
+            processedNode.get(label.node).add(label);
 
+        }
+
+        for(Label label : processedNode.get(inputdata.startNode)){
+            if(label.cost < 0){
+                improvingLabels.add(label);
+            }
         }
         if(improvingLabels.size() > 0){
             return improvingLabels;
@@ -295,7 +312,7 @@ public class PathBuilder {
         return L2;
     }
 
-    private boolean checkDominanceLane(Label newLabel, ArrayList<Label> unprocessed, ArrayList<Label> unprocessedNode){
+    private boolean checkDominanceLane(Label newLabel, ArrayList<Label> unprocessed, ArrayList<Label> unprocessedNode, ArrayList<Label> processed, ArrayList<Label> processedNode){
         ArrayList<Label> remove = new ArrayList<>();
 
         for(Label oldLabel : unprocessedNode) {
@@ -311,21 +328,23 @@ public class PathBuilder {
         unprocessed.removeAll(remove);
         unprocessedNode.removeAll(remove);
 
-        /*remove = new ArrayList<ColumnGeneration.Label>();
-        for(ColumnGeneration.Label oldLabel : processed) {
+        remove = new ArrayList<>();
+        for(ColumnGeneration.Label oldLabel : processedNode) {
             if(dominateLabelLane(oldLabel, newLabel)) {
                 processed.removeAll(remove);
+                processedNode.removeAll(remove);
                 return false;
             }
             else if(dominateLabelLane(newLabel,oldLabel)) {
                 remove.add(oldLabel);
             }
         }
-        processed.removeAll(remove);*/
+        processed.removeAll(remove);
+        processedNode.removeAll(remove);
         return true;
     }
 
-    private boolean checkDominanceSidewalk(Label newLabel, ArrayList<Label> unprocessed, ArrayList<Label> unprocessedNode){
+    private boolean checkDominanceSidewalk(Label newLabel, ArrayList<Label> unprocessed, ArrayList<Label> unprocessedNode, ArrayList<Label> processed, ArrayList<Label> processedNode){
         ArrayList<Label> remove = new ArrayList<Label>();
 
         for(Label oldLabel : unprocessedNode) {
@@ -341,17 +360,19 @@ public class PathBuilder {
         unprocessed.removeAll(remove);
         unprocessedNode.removeAll(remove);
 
-        /*remove = new ArrayList<ColumnGeneration.Label>();
-        for(ColumnGeneration.Label oldLabel : processed) {
+        remove = new ArrayList<>();
+        for(ColumnGeneration.Label oldLabel : processedNode) {
             if(dominateLabelSidewalk(oldLabel, newLabel)) {
                 processed.removeAll(remove);
+                processedNode.removeAll(remove);
                 return false;
             }
             else if(dominateLabelSidewalk(newLabel,oldLabel)) {
                 remove.add(oldLabel);
             }
         }
-        processed.removeAll(remove);*/
+        processed.removeAll(remove);
+        processedNode.removeAll(remove);
         return true;
     }
 

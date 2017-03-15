@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args){
         ArrayList<VehicleLane> vehicleLane = new ArrayList<>();
         ArrayList<VehicleSidewalk> vehicleSidewalk = new ArrayList<>();
-        String testdata = "TestCases/TestCase17.txt";
+        String testdata = "TestCases/TestCase15.txt";
 
         String instance = "TestSet.txt";
         InstanceData inputdata = new InstanceData(instance);

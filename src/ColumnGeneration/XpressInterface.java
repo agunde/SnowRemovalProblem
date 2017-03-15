@@ -162,7 +162,7 @@ public class XpressInterface {
                     this.allLanesPlowedCons[i][j] = problem.newCtr("Plowing demand lanes con"+i+j);
                     this.allLanesPlowedCons[i][j].setType(XPRB.G);
                     this.allLanesPlowedCons[i][j].add(inputdata.numberOfLanesOnArc[i][j]);
-                    //this.allLanesPlowedCons[i][j].addTerm(this.slackVariableAllLanePlowed[i][j],1);
+                    this.allLanesPlowedCons[i][j].addTerm(this.slackVariableAllLanePlowed[i][j],1);
 
                 }
                 if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
@@ -172,7 +172,7 @@ public class XpressInterface {
                     this.allSidewalksPlowedCons[i][j] = problem.newCtr("Plowing demand sidewalks con");
                     this.allSidewalksPlowedCons[i][j].setType(XPRB.G);
                     this.allSidewalksPlowedCons[i][j].add(inputdata.numberofSidewalksOnArc[i][j]);
-                    //this.allSidewalksPlowedCons[i][j].addTerm(this.slackVariableAllSidewalkPlowed[i][j],1);
+                    this.allSidewalksPlowedCons[i][j].addTerm(this.slackVariableAllSidewalkPlowed[i][j],1);
                 }
             }
         }
@@ -186,13 +186,13 @@ public class XpressInterface {
             this.chooseRouteLaneCons[k] = problem.newCtr("Choose route lane con");
             this.chooseRouteLaneCons[k].setType(XPRB.E);
             this.chooseRouteLaneCons[k].add(1);
-            //this.chooseRouteLaneCons[k].addTerm(this.slackVariableChooseRouteLane[k],1);
+            this.chooseRouteLaneCons[k].addTerm(this.slackVariableChooseRouteLane[k],1);
 
             this.makespanLaneCons[k] = problem.newCtr("Makespan lane con");
             this.makespanLaneCons[k].setType(XPRB.L);
             this.makespanLaneCons[k].add(0);
             this.makespanLaneCons[k].addTerm(this.makespanVariable,-1);
-            //this.makespanLaneCons[k].addTerm(this.slackVariableMakespanLane[k],-1);
+            this.makespanLaneCons[k].addTerm(this.slackVariableMakespanLane[k],-1);
         }
 
         for(int k = 0; k < vehicleSidewalk.size(); k++){
@@ -200,20 +200,20 @@ public class XpressInterface {
             //Endre til equal
             this.chooseRouteSidewalkCons[k].setType(XPRB.E);
             this.chooseRouteSidewalkCons[k].add(1);
-            //this.chooseRouteSidewalkCons[k].addTerm(this.slackVariableChooseRouteSidewalk[k],1);
+            this.chooseRouteSidewalkCons[k].addTerm(this.slackVariableChooseRouteSidewalk[k],1);
 
             this.makespanSidewalkCons[k] = problem.newCtr("Makespan sidewalk con");
             this.makespanSidewalkCons[k].setType(XPRB.L);
             this.makespanSidewalkCons[k].add(-inputdata.maxTime);
             this.makespanSidewalkCons[k].addTerm(this.makespanVariable,-1);
             this.makespanSidewalkCons[k].addTerm(this.waitVariable[k],-1);
-            //this.makespanSidewalkCons[k].addTerm(this.slackVariableMakespanSidewalk[k],-1);
+            this.makespanSidewalkCons[k].addTerm(this.slackVariableMakespanSidewalk[k],-1);
 
             this.maxWaitTimeCons[k] = problem.newCtr("Max wait time cons");
             this.maxWaitTimeCons[k].setType(XPRB.L);
             this.maxWaitTimeCons[k].add(inputdata.maxTime);
             this.maxWaitTimeCons[k].addTerm(this.waitVariable[k], 1);
-            //this.maxWaitTimeCons[k].addTerm(this.slackVariableMaxWaitTime[k],-1);
+            this.maxWaitTimeCons[k].addTerm(this.slackVariableMaxWaitTime[k],-1);
         }
 
         for(int k = 0; k < vehicleLane.size(); k++){
@@ -227,7 +227,7 @@ public class XpressInterface {
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceLaneCons[k][i][j].add(0);
                         this.precedenceLaneCons[k][i][j].addTerm(this.precedenceVariable[i][j],-1);
-                        //this.precedenceLaneCons[k][i][j].addTerm(this.slackVariablePrecedenceLane[k][i][j],-1);
+                        this.precedenceLaneCons[k][i][j].addTerm(this.slackVariablePrecedenceLane[k][i][j],-1);
                     }
                 }
             }
@@ -245,7 +245,7 @@ public class XpressInterface {
                         this.precedenceSidewalkCons[k][i][j].add(0);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.precedenceVariable[i][j],1);
                         this.precedenceSidewalkCons[k][i][j].addTerm(this.waitVariable[k],1);
-                        //this.precedenceSidewalkCons[k][i][j].addTerm(this.slackVariablePrecedenceSidewalk[k][i][j],-1);
+                        this.precedenceSidewalkCons[k][i][j].addTerm(this.slackVariablePrecedenceSidewalk[k][i][j],-1);
                     }
                 }
             }
@@ -267,7 +267,7 @@ public class XpressInterface {
         //Midlertidig metode slutt
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
-            numberOfPaths = Math.max((int) Math.ceil(15 - counter / 5.0),3);
+            numberOfPaths = Math.max((int) Math.ceil(15 - counter / 7.0),3);
             counter +=1;
             boolean tempBoolean = false;
             //System.out.println("INNE I SOLVE");
@@ -293,6 +293,7 @@ public class XpressInterface {
             if (tempBoolean == false){
                 optimalSolutionFound = true;
             }
+            
         }
         Date time2 = new Date();
         double totalTime = (time2.getTime()-time1.getTime())/1000.00;
@@ -478,7 +479,7 @@ public class XpressInterface {
 
     private void printSolution() {
         for(int i = 0; i < routeVariables.size(); i++){
-            if(routeVariables.get(i).getSol() >0.1){
+            if(routeVariables.get(i).getSol() >0.01){
                 System.out.println(routeVariables.get(i).getSol()+" "+pathList.get(i).toString());
             }
         }
@@ -507,465 +508,5 @@ public class XpressInterface {
 
     }
 
-    //Midlertidig metode
-    private void generateInitialPaths(){
-        //lag tre nye labels her
-        Label label1 = new Label();
-        label1.node = 5;
-        label1.vehicle = vehicleLane.get(0);
-        label1.arraivingTime = 14;
-        label1.cost = 0;
-        int[][] lastTimePlowedNodeLabel1 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,11,0,3,0,0},
-                {0,0,7,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
-        label1.lastTimePlowedNode = lastTimePlowedNodeLabel1;
-        int[][] numberOfTimesPlowedLabel1 = { {0,0,0,0,0,0},
-                {0,0,1,0,0,0},
-                {0,1,0,1,0,0},
-                {0,0,1,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
-        label1.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
-
-        Label label1vol2 = new Label();
-        label1vol2.node = 5;
-        label1vol2.vehicle = vehicleLane.get(1);
-        label1vol2.arraivingTime = 14;
-        label1vol2.cost = 0;
-        label1vol2.lastTimePlowedNode = lastTimePlowedNodeLabel1;
-        label1vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
-
-        Label label2 = new Label();
-        label2.node = 5;
-        label2.vehicle = vehicleLane.get(1);
-        label2.arraivingTime = 14;
-        label2.cost = 0;
-        int[][] lastTimePlowedNodeLabel2 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,7,0},
-                {0,8,0,6,0,0},
-                {0,0,0,0,0,0}};
-        label2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
-        int[][] numberOfTimesPlowedLabel2 = { {0,0,0,0,0,0},
-                {0,0,0,0,1,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,1,0},
-                {0,1,0,1,0,0},
-                {0,0,0,0,0,0}};
-        label2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
-
-        Label label2vol2 = new Label();
-        label2vol2.node = 5;
-        label2vol2.vehicle = vehicleLane.get(0);
-        label2vol2.arraivingTime = 14;
-        label2vol2.cost = 0;
-        label2vol2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
-        label2vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
-
-        Label label3 = new Label();
-        label3.node = 0;
-        label3.vehicle = vehicleSidewalk.get(0);
-        label3.arraivingTime = 2;
-        label3.cost = 0;
-        int[][] lastTimePlowedNodeLabel3 = { {30,30,30,30,30,30},
-                {30,30,30,30,30,30},
-                {30,30,30,15,30,30},
-                {30,30,9,30,21,30},
-                {30,30,30,30,30,30},
-                {30,30,30,30,30,30}};
-        label3.lastTimePlowedNode = lastTimePlowedNodeLabel3;
-        int[][] numberOfTimesPlowedLabel3 = { {0,0,0,0,0,0},
-                {0,0,0,0,0,0},
-                {0,0,0,1,0,0},
-                {0,0,1,0,1,0},
-                {0,0,0,0,0,0},
-                {0,0,0,0,0,0}};
-        label3.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
-
-        Label label3vol2 = new Label();
-        label3vol2.node = 0;
-        label3vol2.vehicle = vehicleSidewalk.get(1);
-        label3vol2.arraivingTime = 2;
-        label3vol2.cost = 0;
-        label3vol2.lastTimePlowedNode = lastTimePlowedNodeLabel3;
-        label3vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
-
-
-        addLabelToMaster(label1,true);
-        addLabelToMaster(label2,true);
-        addLabelToMaster(label3,false);
-        addLabelToMaster(label1vol2,true);
-        addLabelToMaster(label2vol2,true);
-        addLabelToMaster(label3vol2,false);
-
-    }
-
-    private void solveProblemAllPaths(){
-        //Lagt til en midlertidig metode
-        //generateInitialPaths();
-        //Midlertidig metode slutt
-        for(VehicleLane v : vehicleLane){
-            //ArrayList<ColumnGeneration.Label> labels = builder.generateAllPathsLane(v);
-            ArrayList<Label> labels = builder.generateFivePathsLane(v);
-            for(Label l : labels){
-                addLabelToMaster(l,true);
-            }
-        }
-        for(VehicleSidewalk v: vehicleSidewalk){
-            //ArrayList<ColumnGeneration.Label> labels = builder.generateAllPathsSidewalk(v);
-            ArrayList<Label> labels = builder.generateFivePathsSidewalk(v);
-            for(Label l : labels){
-                addLabelToMaster(l,false);
-            }
-        }
-        solveMasterProblem();
-        printSolution();
-
-    }
-
-    private void generateHeuristicLabels(){
-        Label label1 = new Label();
-        label1.node = 14;
-        label1.vehicle = vehicleLane.get(0);
-        label1.arraivingTime = 85;
-        label1.cost = 0;
-        int[][] numberOfTimesPlowedLabel1 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	1,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-
-        int[][] lastTimePlowedNodeLabel1  = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	4,	0,	0,	30,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	25,	0,	0,	35,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	82,	0,	0,	21,	0,	0,	55,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	19,	0,	64,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	78,	0,	0,	67,	59,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	71,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	60,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	47,	0,	16,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	76,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label1.lastTimePlowedNode = lastTimePlowedNodeLabel1;
-        label1.numberOfTimesPlowed = numberOfTimesPlowedLabel1;
-
-        Label label2 = new Label();
-        label2.node = 14;
-        label2.vehicle = vehicleLane.get(1);
-        label2.arraivingTime = 82;
-        label2.cost = 0;
-        int[][] lastTimePlowedNodeLabel2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	44,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	41,	0,	0,	0,	0,	3,	71,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	13,	0,	0,	0,	0,	5,	0,	0},
-                {0,	0,	0,	0,	0,	37,	0,	0,	0,	35,	0,	16,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	31,	0,	23,	0,	0,	0,	0,	0},
-                {0,	76,	0,	0,	0,	0,	0,	36,	27,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	65,	18,	0,	0,	0,	53,	0,	0},
-                {0,	0,	0,	0,	0,	0,	9,	0,	0,	0,	0,	59,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label2.lastTimePlowedNode = lastTimePlowedNodeLabel2;
-        int[][] numberOfTimesPlowedLabel2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	1,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label2.numberOfTimesPlowed = numberOfTimesPlowedLabel2;
-
-        Label label3 = new Label();
-        label3.node = 0;
-        label3.vehicle = vehicleSidewalk.get(0);
-        label3.arraivingTime = 0;
-        label3.cost = 0;
-        int[][] lastTimePlowedNodeLabel3 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	16,	0,	6,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	11,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	55,	0,	0,	0,	0,	43,	0,	0,	0,	0},
-                {0,	85,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	27,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	79,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	73,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	68,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	49,	0,	32,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label3.lastTimePlowedNode = lastTimePlowedNodeLabel3;
-        for(int i = 0; i < inputdata.antallNoder; i++){
-            for(int j = 0; j<inputdata.antallNoder;j++){
-                label3.lastTimePlowedNode[i][j] = 89 - inputdata.plowingtimeSidewalk[i][j] - lastTimePlowedNodeLabel3[i][j];
-            }
-        }
-        int[][] numberOfTimesPlowedLabel3 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label3.numberOfTimesPlowed = numberOfTimesPlowedLabel3;
-
-        Label label4 = new Label();
-        label4.node = 0;
-        label4.vehicle = vehicleSidewalk.get(1);
-        label4.arraivingTime = 1;
-        label4.cost = 0;
-        int[][] lastTimePlowedNodeLabel4 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	6,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	57,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	63,	30,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	71,	0,	11,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	21,	39,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label4.lastTimePlowedNode = lastTimePlowedNodeLabel4;
-        for(int i = 0; i < inputdata.antallNoder; i++){
-            for(int j = 0; j<inputdata.antallNoder;j++){
-                label4.lastTimePlowedNode[i][j] = 89 - inputdata.plowingtimeSidewalk[i][j] - lastTimePlowedNodeLabel4[i][j];
-            }
-        }
-        int[][] numberOfTimesPlowedLabel4 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	1,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label4.numberOfTimesPlowed = numberOfTimesPlowedLabel4;
-
-        //Dupliserer lablene
-
-        Label label1vol2 = new Label();
-        label1vol2.node = 14;
-        label1vol2.vehicle = vehicleLane.get(1);
-        label1vol2.arraivingTime = 85;
-        label1vol2.cost = 0;
-        int[][] numberOfTimesPlowedLabel1vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	1,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-
-        int[][] lastTimePlowedNodeLabel1vol2  = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	4,	0,	0,	30,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	25,	0,	0,	35,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	82,	0,	0,	21,	0,	0,	55,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	19,	0,	64,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	78,	0,	0,	67,	59,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	71,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	60,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	47,	0,	16,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	76,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label1vol2.lastTimePlowedNode = lastTimePlowedNodeLabel1vol2;
-        label1vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel1vol2;
-
-        Label label2vol2 = new Label();
-        label2vol2.node = 14;
-        label2vol2.vehicle = vehicleLane.get(0);
-        label2vol2.arraivingTime = 82;
-        label2vol2.cost = 0;
-        int[][] lastTimePlowedNodeLabel2vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	44,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	41,	0,	0,	0,	0,	3,	71,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	13,	0,	0,	0,	0,	5,	0,	0},
-                {0,	0,	0,	0,	0,	37,	0,	0,	0,	35,	0,	16,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	31,	0,	23,	0,	0,	0,	0,	0},
-                {0,	76,	0,	0,	0,	0,	0,	36,	27,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	65,	18,	0,	0,	0,	53,	0,	0},
-                {0,	0,	0,	0,	0,	0,	9,	0,	0,	0,	0,	59,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label2vol2.lastTimePlowedNode = lastTimePlowedNodeLabel2vol2;
-        int[][] numberOfTimesPlowedLabel2vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	1,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label2vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel2vol2;
-
-        Label label3vol2 = new Label();
-        label3vol2.node = 0;
-        label3vol2.vehicle = vehicleSidewalk.get(1);
-        label3vol2.arraivingTime = 0;
-        label3vol2.cost = 0;
-        int[][] lastTimePlowedNodeLabel3vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	16,	0,	6,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	11,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	55,	0,	0,	0,	0,	43,	0,	0,	0,	0},
-                {0,	85,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	27,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	79,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	73,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	68,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	49,	0,	32,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label3vol2.lastTimePlowedNode = lastTimePlowedNodeLabel3;
-        for(int i = 0; i < inputdata.antallNoder; i++){
-            for(int j = 0; j<inputdata.antallNoder;j++){
-                label3vol2.lastTimePlowedNode[i][j] = 89 - inputdata.plowingtimeSidewalk[i][j] - lastTimePlowedNodeLabel3vol2[i][j];
-            }
-        }
-        int[][] numberOfTimesPlowedLabel3vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0},
-                {0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label3vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel3vol2;
-
-        Label label4vol2 = new Label();
-        label4vol2.node = 0;
-        label4vol2.vehicle = vehicleSidewalk.get(0);
-        label4vol2.arraivingTime = 1;
-        label4vol2.cost = 0;
-        int[][] lastTimePlowedNodeLabel4vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	6,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	57,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	63,	30,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	71,	0,	11,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	21,	39,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label4vol2.lastTimePlowedNode = lastTimePlowedNodeLabel4;
-        for(int i = 0; i < inputdata.antallNoder; i++){
-            for(int j = 0; j<inputdata.antallNoder;j++){
-                label4vol2.lastTimePlowedNode[i][j] = 89 - inputdata.plowingtimeSidewalk[i][j] - lastTimePlowedNodeLabel4vol2[i][j];
-            }
-        }
-        int[][] numberOfTimesPlowedLabel4vol2 = { {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	1,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0},
-                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-        label4vol2.numberOfTimesPlowed = numberOfTimesPlowedLabel4vol2;
-
-        addLabelToMaster(label1,true);
-        addLabelToMaster(label2,true);
-        addLabelToMaster(label3,false);
-        addLabelToMaster(label4, false);
-        addLabelToMaster(label1vol2,true);
-        addLabelToMaster(label2vol2,true);
-        addLabelToMaster(label3vol2,false);
-        addLabelToMaster(label4vol2,false);
-
-
-    }
 
 }

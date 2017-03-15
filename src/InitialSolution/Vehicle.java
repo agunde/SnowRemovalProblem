@@ -134,6 +134,7 @@ public class Vehicle{
         }
         else if(this.id < 0){
             int waitTime = 0;
+            int cumWaitTime = 0;
             for (int x = 0; x < route.size(); x++){
                 if(x> 0 && (StartTimeForArcs.get(x) -  (StartTimeForArcs.get(x-1) + route.get(x-1).length) > 0)){
                     waitTime += StartTimeForArcs.get(x) -  (StartTimeForArcs.get(x-1) + route.get(x).length);
@@ -150,8 +151,11 @@ public class Vehicle{
                 Arrays.fill(row,xpi.inputdata.maxTime);
             }
             for (int i = 0; i < route.size(); i++) {
+                if(i> 0 && (StartTimeForArcs.get(i) -  (StartTimeForArcs.get(i-1) + route.get(i-1).length) > 0)){
+                    cumWaitTime += StartTimeForArcs.get(i) -  (StartTimeForArcs.get(i-1) + route.get(i).length);
+                }
                 if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] == 0){
-                    lastTimePlowed[route.get(i).from.nr+1][route.get(i).to.nr+1] = StartTimeForArcs.get(i);
+                    lastTimePlowed[route.get(i).from.nr+1][route.get(i).to.nr+1] = xpi.inputdata.maxTime - StartTimeForArcs.get(i) + cumWaitTime;
                 }
                 if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] < xpi.inputdata.numberOfPlowJobsSidewalk[route.get(i).from.nr+1][route.get(i).to.nr+1]){
                     nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] += 1;
