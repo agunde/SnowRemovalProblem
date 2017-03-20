@@ -154,6 +154,7 @@ public class PathBuilder {
 
 
         if(improvingLabels.size() >0){
+            improvingLabels.addAll(badImprovingLabels);
             return improvingLabels;
         }
         if(badImprovingLabels.size() >0){
@@ -270,12 +271,8 @@ public class PathBuilder {
 
         }
 
-        for(Label label : processedNode.get(inputdata.startNode)){
-            if(label.cost < 0){
-                improvingLabels.add(label);
-            }
-        }
         if(improvingLabels.size() > 0){
+            improvingLabels.addAll(badImprovingLabels);
             return improvingLabels;
         }
         if(badImprovingLabels.size() >0){
