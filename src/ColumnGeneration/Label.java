@@ -93,5 +93,17 @@ public class Label {
         return string;
     }
 
+    public String toString(int antallNoder){
+        String string = "";
+        for(int i = 0; i < antallNoder; i++){
+            for(int j = 0; j < antallNoder; j++){
+                string += lastTimePlowedNode[i][j]+" ";
+                //string += numberOfTimesPlowed[i][j]+" ";
+            }
+            string += "\n";
+        }
+        return string;
+    }
+
 
 }

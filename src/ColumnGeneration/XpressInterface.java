@@ -227,7 +227,7 @@ public class XpressInterface {
                         this.precedenceLaneCons[k][i][j].setType(XPRB.L);
                         this.precedenceLaneCons[k][i][j].add(0);
                         this.precedenceLaneCons[k][i][j].addTerm(this.precedenceVariable[i][j],-1);
-                        this.precedenceLaneCons[k][i][j].addTerm(this.slackVariablePrecedenceLane[k][i][j],-1);
+                       this.precedenceLaneCons[k][i][j].addTerm(this.slackVariablePrecedenceLane[k][i][j],-1);
                     }
                 }
             }
@@ -255,6 +255,8 @@ public class XpressInterface {
 
 
 
+
+
     }
 //Oppdatere dualveridiene her
     private void solveProblem(){
@@ -267,12 +269,13 @@ public class XpressInterface {
         //Midlertidig metode slutt
         boolean optimalSolutionFound = false;
         while(!optimalSolutionFound){
-            numberOfPaths = Math.max((int) Math.ceil(15 - counter / 7.0),3);
+            numberOfPaths = Math.max((int) Math.ceil(10 - counter / 7.0),3);
             counter +=1;
             boolean tempBoolean = false;
             //System.out.println("INNE I SOLVE");
             solveMasterProblem();
             for(VehicleLane v: vehicleLane) {
+                Date timeSub = new Date();
                 ArrayList<Label> labelLane = builder.buildPathLane(v,numberOfPaths);
                 if(labelLane != null){
                     for(Label label : labelLane){
@@ -280,6 +283,8 @@ public class XpressInterface {
                     }
                     tempBoolean = true;
                 }
+                Date timeSub2 = new Date();
+                //System.out.println("Tid "+(timeSub2.getTime()-timeSub.getTime()));
             }
             for(int v = 0; v < vehicleSidewalk.size(); v++) {
                 ArrayList<Label> labelSidewalk = builder.buildPathSidewalk(vehicleSidewalk.get(v),numberOfPaths);
@@ -293,7 +298,116 @@ public class XpressInterface {
             if (tempBoolean == false){
                 optimalSolutionFound = true;
             }
-            
+            for(int k = 0; k < vehicleLane.size(); k++){
+                if(slackVariableChooseRouteLane[k].getSol()!=0){
+                    System.out.println("Slack variable choose route lane " +k+" sol "+slackVariableChooseRouteLane[k].getSol());
+                }
+                if(slackVariableMakespanLane[k].getSol() != 0){
+                    System.out.println("Slack variable makespan lane "+k+" sol "+slackVariableMakespanLane[k].getSol());
+                }
+
+
+                for(int i = 0; i < inputdata.antallNoder; i++){
+                    for(Integer j: inputdata.plowingNeighborLane.get(i)){
+                        if(inputdata.numberOfPlowJobsSidewalk[i][j] >0){
+                            if(slackVariablePrecedenceLane[k][i][j].getSol() !=0){
+                                System.out.println("Slack variable precedence lane " + k + i+j+" sol "+slackVariablePrecedenceLane[k][i][j].getSol());
+                            }
+
+                        }
+                    }
+                }
+            }
+            for(int k = 0; k < vehicleSidewalk.size(); k++){
+                if(slackVariableChooseRouteSidewalk[k].getSol() != 0){
+                    System.out.println("Slack variable choose route sidewalk "+k + " sol "+slackVariableChooseRouteSidewalk[k].getSol());
+                }
+                if(slackVariableMakespanSidewalk[k].getSol() != 0){
+                    System.out.println("Slack variable makespan sidewalk "+k+" sol "+slackVariableMakespanSidewalk[k].getSol());
+                }
+                if(slackVariableMaxWaitTime[k].getSol() != 0){
+                    System.out.println("Slack variable max wait time "+k+" sol "+slackVariableMaxWaitTime[k].getSol());
+                }
+               // if(waitVariable[k].getSol() != 0){
+                //    System.out.println("Wait time variable "+k+" sol "+waitVariable[k].getSol() );
+                //}
+                for(int i = 0; i < inputdata.antallNoder; i++){
+                    for(Integer j: inputdata.plowingNeighborSidewalkReversed.get(i)){
+                        if(inputdata.numberOfPlowJobsLane[j][i] >0){
+                            if(slackVariablePrecedenceSidewalk[k][j][i].getSol() != 0){
+                                System.out.println("Slack variable precedence sidewalk " + k + j+i+" sol "+slackVariablePrecedenceSidewalk[k][j][i].getSol());
+                            }
+                        }
+                    }
+                }
+            }
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(Integer j : inputdata.plowingNeighborLane.get(i)){
+                    if(slackVariableAllLanePlowed[i][j].getSol() != 0){
+                        System.out.println("Slack variable all lanes plowed "+i+j+" sol "+slackVariableAllLanePlowed[i][j].getSol());
+                        for(int x = 0; x < routeVariables.size(); x++){
+                            if(routeVariables.get(x).getSol() >0.01){
+                                if(pathList.get(x).vehicle instanceof VehicleLane){
+                                    System.out.println(pathList.get(x).numberOfTimesPlowed[i][j]);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            for(int i = 0; i < inputdata.antallNoder; i++){
+                for(Integer j: inputdata.plowingNeighborSidewalkReversed.get(i)){
+                    if(slackVariableAllSidewalkPlowed[j][i].getSol() != 0){
+                        System.out.println("Slack variable all sidewalks plowed " +j + i + " sol "+slackVariableAllSidewalkPlowed[j][i].getSol());
+                    }
+
+                }
+            }
+
+            for(int k = 0; k < vehicleSidewalk.size(); k++){
+                for(int i = 0; i < inputdata.antallNoder; i++){
+                    for(int j = 0; j < inputdata.antallNoder; j++){
+                        if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                            if(slackVariablePrecedenceSidewalk[k][i][j].getSol() != 0){
+                                System.out.println("Slack variable precedence sidewalk " + k + i+j+" sol "+slackVariablePrecedenceSidewalk[k][i][j].getSol());
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(int k = 0; k < vehicleLane.size(); k++){
+                for(int i = 0; i <inputdata.antallNoder; i++){
+                    for(int j = 0; j < inputdata.antallNoder; j++){
+                        if(inputdata.plowingtimeLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                            if(slackVariablePrecedenceLane[k][i][j].getSol() !=0){
+                                System.out.println("Slack variable precedence lane " + k + i+j+" sol "+slackVariablePrecedenceLane[k][i][j].getSol());
+                            }
+                            //System.out.println("Precedence variable "+i+j+" sol "+precedenceVariable[i][j].getSol());
+                        }
+                    }
+                }
+            }
+
+            /*for(int i = 0; i < inputdata.antallNoder; i++){
+                for(int j = 0; j < inputdata.antallNoder; j++) {
+                    if(inputdata.numberOfPlowJobsLane[i][j] > 0){
+                        if(slackVariableAllLanePlowed[i][j].getSol() != 0) {
+                            System.out.println("Slack variable all lanes plowed " + i + j + " sol " + slackVariableAllLanePlowed[i][j].getSol());
+                        }
+                    }
+                    if(inputdata.numberOfPlowJobsSidewalk[i][j] > 0){
+                        if(slackVariableAllSidewalkPlowed[i][j].getSol() != 0){
+                            System.out.println("Slack variable all sidewalks plowed " +i + j + " sol "+slackVariableAllSidewalkPlowed[i][j].getSol());
+                        }
+                    }
+                }
+            }*/
+            System.out.println("DONE "+makespanVariable.getSol());
+            printSolution();
+
+
         }
         Date time2 = new Date();
         double totalTime = (time2.getTime()-time1.getTime())/1000.00;
@@ -413,17 +527,17 @@ public class XpressInterface {
 
     public void addLabelToMaster(Label label, boolean LaneVehicle){
         //gjør binær med BV, kontinuerlig med PL
-        //System.out.println("INNE I ADD");
-        XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.PL,0,XPRB.INFINITY);
+        System.out.println("INNE I ADD. kostnad "+label.cost);
+        System.out.println(label.toString());
+        XPRBvar lambdaVar = problem.newVar("lambda "+routeVariables.size(),XPRB.PL,0,1);
+        routeVariables.add(lambdaVar);
 
         if(LaneVehicle == true){
-            routeVariables.add(lambdaVar);
 
             this.chooseRouteLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
             this.makespanLaneCons[label.vehicle.getNumber()].addTerm(lambdaVar, label.arraivingTime);
         }
         else if(LaneVehicle == false){
-            routeVariables.add(lambdaVar);
 
             this.chooseRouteSidewalkCons[label.vehicle.getNumber()].addTerm(lambdaVar,1);
             this.maxWaitTimeCons[label.vehicle.getNumber()].addTerm(lambdaVar,inputdata.maxTime - label.arraivingTime);
@@ -477,6 +591,23 @@ public class XpressInterface {
 
     }
 
+    public Label duplicateLabel(Label label){
+        Label newLabel = new Label();
+        newLabel.lastTimePlowedNode = new int[inputdata.antallNoder][inputdata.antallNoder];
+        newLabel.numberOfTimesPlowed = new int[inputdata.antallNoder][inputdata.antallNoder];
+        for (int i = 0; i < inputdata.antallNoder; i++){
+            newLabel.numberOfTimesPlowed[i] = label.numberOfTimesPlowed[i].clone();
+            newLabel.lastTimePlowedNode[i] = label.lastTimePlowedNode[i].clone();
+        }
+        newLabel.deadheading = label.deadheading;
+        newLabel.arraivingTime = label.arraivingTime;
+        newLabel.cost = label.cost;
+        newLabel.node = label.node;
+        newLabel.predecessor = label.predecessor;
+        //newLabel.vehicle = label.vehicle;
+        return newLabel;
+    }
+
     private void printSolution() {
         for(int i = 0; i < routeVariables.size(); i++){
             if(routeVariables.get(i).getSol() >0.01){
@@ -484,27 +615,29 @@ public class XpressInterface {
             }
         }
 
-        for (int i = 0; i < inputdata.antallNoder; i++){
+        /*for (int i = 0; i < inputdata.antallNoder; i++){
             for(int j = 0; j < inputdata.antallNoder; j++){
                 if(inputdata.numberOfPlowJobsLane[i][j] > 0 && inputdata.numberOfPlowJobsSidewalk[i][j] > 0 ){
-                    System.out.println("Precedence:");
+                    System.out.println("Precedence arc "+i+j+" precedence variable: "+precedenceVariable[i][j].getSol());
                     String string = "";
                     for(int r = 0; r < routeVariables.size(); r++){
                         if(routeVariables.get(r).getSol() > 0.1){
                             Label temp = pathList.get(r);
-                            if(temp.vehicle instanceof VehicleLane){
-                                string += " Lane time "+temp.lastTimePlowedNode[i][j];
-                            }
-                            else{
-                                string += " Sidewalk time "+temp.lastTimePlowedNode[i][j];
+                            if(temp.numberOfTimesPlowed[i][j] >0){
+                                if(temp.vehicle instanceof VehicleLane){
+                                    string += " Lane time "+temp.lastTimePlowedNode[i][j];
+                                }
+                                else{
+                                    string += " Sidewalk time "+temp.lastTimePlowedNode[i][j];
+                                }
                             }
                         }
                     }
                     System.out.println(string);
                 }
             }
-        }
-        System.out.println("Makespan: "+problem.getObjVal());
+        }*/
+        System.out.println("Objektverdi: "+problem.getObjVal());
 
     }
 

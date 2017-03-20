@@ -169,10 +169,10 @@ public class EvolutionaryAlgorithm {
 				Collections.sort(vehicles, new TypeComparator());
 				for (Vehicle vehicle : bestResult) {
 					vehicle.reRoute();
-					for(int x = 0; x<vehicle.tasks.size();x++){
+					/*for(int x = 0; x<vehicle.tasks.size();x++){
 						System.out.println(vehicle.tasks.get(x).identifier + "  " + vehicle.tasks.get(x).type);
 					}
-					System.out.println("NESTE KJØRETØY");
+					System.out.println("NESTE KJØRETØY");*/
 				}
 				//int makespan = fenotype.calculateFitness(bestResult);
 				//xpi.inputdata.maxTime = fenotype.calculateFitness(bestResult);
@@ -186,6 +186,7 @@ public class EvolutionaryAlgorithm {
 					Collections.sort(vehicles, new TypeComparator());
 					for (Vehicle vehicle : randomSolution) {
 						vehicle.reRoute();
+						//System.out.println(vehicle);
 						vehicle.addColumnToMaster(xpi);
 					}
 				}

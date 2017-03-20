@@ -44,9 +44,16 @@ public class Vehicle{
                     }
                 }
             }
+            if (this.id > 0 && route.get(x).type == 1){
+                route.get(x).setStartOfService(cost);
+                route.get(x).serveArc();
+            }
+            if (this.id < 0 && route.get(x).type == 2){
+                route.get(x).setStartOfService(cost);
+                route.get(x).serveArc();
+            }
             startTimes.add(cost);
-            route.get(x).setStartOfService(cost);
-            route.get(x).serveArc();
+
             cost += route.get(x).length;
 
         }
@@ -110,29 +117,37 @@ public class Vehicle{
     public void addColumnToMaster(XpressInterface xpi){
         Label label = new Label();
         if(this.id >0){
-            label.arraivingTime = StartTimeForArcs.get(StartTimeForArcs.size()-1) + route.get(route.size()-1).length;
+            //System.out.println("Vei");
+            label.arraivingTime = totalLength;
             label.cost = 0;
             label.deadheading = true;
             label.node = xpi.inputdata.endNode;
             int[][] nrTraversed = new int[xpi.inputdata.antallNoder][xpi.inputdata.antallNoder];
             int[][] lastTimePlowed = new int[xpi.inputdata.antallNoder][xpi.inputdata.antallNoder];
             for (int i = 0; i < route.size(); i++) {
-                if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] == 0){
-                    lastTimePlowed[route.get(i).from.nr+1][route.get(i).to.nr+1] = StartTimeForArcs.get(i);
-                }
                 if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] < xpi.inputdata.numberOfPlowJobsLane[route.get(i).from.nr+1][route.get(i).to.nr+1]){
+                    if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] == 0){
+                        lastTimePlowed[route.get(i).from.nr+1][route.get(i).to.nr+1] = StartTimeForArcs.get(i);
+                    }
                     nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] += 1;
                 }
             }
             label.numberOfTimesPlowed = nrTraversed;
             label.lastTimePlowedNode = lastTimePlowed;
+            //label.vehicle = xpi.vehicleLane.get(this.id -1);
+            //xpi.addLabelToMaster(label, true);
 
             for(int k = 0; k < xpi.vehicleLane.size(); k++){
-                label.vehicle = xpi.vehicleLane.get(k);
-                xpi.addLabelToMaster(label,true);
+                Label l2 = xpi.duplicateLabel(label);
+                l2.vehicle = xpi.vehicleLane.get(k);
+                xpi.addLabelToMaster(l2,true);
+
+                //String string = l2.toString(xpi.inputdata.antallNoder);
+                //System.out.println(string);
             }
         }
         else if(this.id < 0){
+            //System.out.println("Fortau");
             int waitTime = 0;
             int cumWaitTime = 0;
             for (int x = 0; x < route.size(); x++){
@@ -140,7 +155,7 @@ public class Vehicle{
                     waitTime += StartTimeForArcs.get(x) -  (StartTimeForArcs.get(x-1) + route.get(x).length);
                 }
             }
-            label.arraivingTime = xpi.inputdata.maxTime - (StartTimeForArcs.get(StartTimeForArcs.size()-1) + route.get(route.size()-1).length) + waitTime;
+            label.arraivingTime = xpi.inputdata.maxTime - totalLength + waitTime;
             label.cost = 0;
             label.deadheading = true;
             label.node = xpi.inputdata.startNode;
@@ -154,23 +169,31 @@ public class Vehicle{
                 if(i> 0 && (StartTimeForArcs.get(i) -  (StartTimeForArcs.get(i-1) + route.get(i-1).length) > 0)){
                     cumWaitTime += StartTimeForArcs.get(i) -  (StartTimeForArcs.get(i-1) + route.get(i).length);
                 }
-                if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] == 0){
-                    lastTimePlowed[route.get(i).from.nr+1][route.get(i).to.nr+1] = xpi.inputdata.maxTime - StartTimeForArcs.get(i) + cumWaitTime;
+                if(route.get(i).type == 2){
+                    if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] < xpi.inputdata.numberOfPlowJobsSidewalk[route.get(i).from.nr+1][route.get(i).to.nr+1]){
+                        if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] == 0){
+                            label.lastTimePlowedNode[route.get(i).from.nr+1][route.get(i).to.nr+1] = label.arraivingTime + StartTimeForArcs.get(i) - cumWaitTime;
+                        }
+                        nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] += 1;
+                    }
                 }
-                if(nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] < xpi.inputdata.numberOfPlowJobsSidewalk[route.get(i).from.nr+1][route.get(i).to.nr+1]){
-                    nrTraversed[route.get(i).from.nr+1][route.get(i).to.nr+1] += 1;
-                }
+
             }
 
             label.numberOfTimesPlowed = nrTraversed;
+            //label.vehicle = xpi.vehicleSidewalk.get(Math.abs(this.id)-1);
+            //xpi.addLabelToMaster(label, false);
             for(int k = 0; k < xpi.vehicleSidewalk.size(); k++){
-                label.vehicle = xpi.vehicleSidewalk.get(k);
-                xpi.addLabelToMaster(label,false);
+                Label l2 = xpi.duplicateLabel(label);
+                l2.vehicle = xpi.vehicleSidewalk.get(k);
+                xpi.addLabelToMaster(l2,false);
+
+                //String string = l2.toString(xpi.inputdata.antallNoder);
+                //System.out.println(string);
             }
 
+
         }
-
-
 
     }
 
